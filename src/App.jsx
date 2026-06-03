@@ -344,6 +344,11 @@ function App() {
     <option key={cargo} value={cargo}>
       {cargo}
     </option>
+                {filteredCargoItems.map((cargo) => (
+  <option key={cargo} value={cargo}>
+    {cargo}
+  </option>
+))}
   ))}
 </select>
                 <input value={item.weight} onChange={(event) => updateGoods(index, "weight", event.target.value)} placeholder="—" />
