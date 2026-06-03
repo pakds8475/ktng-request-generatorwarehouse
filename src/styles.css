@@ -418,3 +418,35 @@ textarea:focus {
   color: #ffffff;
   border-color: #111827;
 }
+
+  .cargoFilters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 8px 0 14px;
+  grid-column: 1 / -1;
+}
+
+.cargoFilters button {
+  border: 1px solid #d0d5dd;
+  background: #ffffff;
+  color: #101828;
+  padding: 8px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: 0.2s ease;
+}
+
+.cargoFilters button:hover {
+  background: #f2f4f7;
+  border-color: #98a2b3;
+}
+
+.cargoFilters .activeFilter {
+  background: #4058f2;
+  color: #ffffff;
+  border-color: #4058f2;
+  box-shadow: 0 8px 20px rgba(64, 88, 242, 0.25);
+}
