@@ -2,6 +2,10 @@ import { useMemo, useState } from "react";
 import { downloadDocx, formatDateDots, formatDateLong } from "./docxGenerator.js";
 
 const today = "2026-06-03";
+
+
+
+
 const allowedCargoItems = [
   "Кастомная витрина (с освещением)",
   "Кастомная витрина (без освещения)",
@@ -55,6 +59,28 @@ const allowedCargoItems = [
   "Повреждённые акцизные марки",
   "Пластмассовые ценники"
 ];
+
+const getCargoCondition = (cargoName) => {
+  const text = cargoName.toLowerCase();
+
+  if (text.includes("брак")) {
+    return "defect";
+  }
+
+  if (text.includes("б/у") || text.includes("бу") || text.includes("б.у")) {
+    return "used";
+  }
+
+  return "new";
+};
+
+const sortedCargoItems = [...allowedCargoItems].sort((a, b) =>
+  a.localeCompare(b, "ru")
+);
+
+
+
+
 const allowedCities = [
   "Андижан",
   "Самарканд",
@@ -127,7 +153,22 @@ function Field({ label, children, hint }) {
 function App() {
   const [form, setForm] = useState(initialForm);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [cargoFilter, setCargoFilter] = useState("all");
+  const filteredCargoItems = sortedCargoItems.filter((cargo) => {
+  if (cargoFilter === "all") {
+    return true;
+  }
 
+  return getCargoCondition(cargo) === cargoFilter;
+});
+
+
+
+
+
+
+
+  
   const title = form.applicationType === "issue" ? "Заявка на выдачу товара" : "Заявка на приемку";
   const hasRequiredFields = form.city && form.docDate && form.arrivalDate && form.timeRange && form.vehicleNumber && form.driverName;
 
@@ -259,6 +300,42 @@ function App() {
               <span>Кол-во</span>
               <span></span>
             </div>
+
+          <div className="cargoFilters">
+  <button
+    type="button"
+    className={cargoFilter === "all" ? "activeFilter" : ""}
+    onClick={() => setCargoFilter("all")}
+  >
+    Все
+  </button>
+
+  <button
+    type="button"
+    className={cargoFilter === "new" ? "activeFilter" : ""}
+    onClick={() => setCargoFilter("new")}
+  >
+    Новый
+  </button>
+
+  <button
+    type="button"
+    className={cargoFilter === "used" ? "activeFilter" : ""}
+    onClick={() => setCargoFilter("used")}
+  >
+    БУ
+  </button>
+
+  <button
+    type="button"
+    className={cargoFilter === "defect" ? "activeFilter" : ""}
+    onClick={() => setCargoFilter("defect")}
+  >
+    Брак
+  </button>
+</div>
+
+            
             {form.goods.map((item, index) => (
               <div className="goodsRow" key={index}>
               <select value={item.name} onChange={(event) => updateGoods(index, "name", event.target.value)}>
