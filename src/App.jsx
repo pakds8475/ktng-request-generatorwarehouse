@@ -339,15 +339,17 @@ function App() {
             {form.goods.map((item, index) => (
               <div className="goodsRow" key={index}>
               <select value={item.name} onChange={(event) => updateGoods(index, "name", event.target.value)}>
+ <select
+  value={item.name}
+  onChange={(event) => updateGoods(index, "name", event.target.value)}
+>
   <option value="">Выберите груз</option>
-  {allowedCargoItems.map((cargo) => (
+  {filteredCargoItems.map((cargo) => (
     <option key={cargo} value={cargo}>
       {cargo}
     </option>
-                {filteredCargoItems.map((cargo) => (
-  <option key={cargo} value={cargo}>
-    {cargo}
-  </option>
+  ))}
+</select>
 ))}
   ))}
 </select>
