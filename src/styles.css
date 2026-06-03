@@ -252,6 +252,38 @@ textarea:focus {
   margin: 0;
 }
 
+.cargoFilters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 6px 0 14px;
+  grid-column: 1 / -1;
+}
+
+.cargoFilters button {
+  border: 1px solid #d0d5dd;
+  background: #ffffff;
+  color: #101828;
+  padding: 8px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+
+.cargoFilters button:hover {
+  background: #f2f4f7;
+  border-color: #98a2b3;
+}
+
+.cargoFilters .activeFilter {
+  background: #4263eb;
+  color: #ffffff;
+  border-color: #4263eb;
+  box-shadow: 0 8px 20px rgba(66, 99, 235, 0.25);
+}
+
 .iconButton {
   width: 42px;
   height: 42px;
@@ -368,85 +400,13 @@ textarea:focus {
   .iconButton {
     width: 100%;
   }
-  .cargoFilters {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin: 10px 0 16px;
-}
-
-.cargoFilters button {
-  border: 1px solid #d0d5dd;
-  background: #ffffff;
-  padding: 8px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.cargoFilters button:hover {
-  background: #f3f4f6;
-}
-
-.cargoFilters .activeFilter {
-  background: #111827;
-  color: #ffffff;
-  border-color: #111827;
-}
-.cargoFilters {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin: 10px 0 16px;
-}
-
-.cargoFilters button {
-  border: 1px solid #d0d5dd;
-  background: #ffffff;
-  padding: 8px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.cargoFilters button:hover {
-  background: #f3f4f6;
-}
-
-.cargoFilters .activeFilter {
-  background: #111827;
-  color: #ffffff;
-  border-color: #111827;
-}
 
   .cargoFilters {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin: 8px 0 14px;
-  grid-column: 1 / -1;
-}
+    margin-top: 4px;
+  }
 
-.cargoFilters button {
-  border: 1px solid #d0d5dd;
-  background: #ffffff;
-  color: #101828;
-  padding: 8px 16px;
-  border-radius: 999px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  transition: 0.2s ease;
-}
-
-.cargoFilters button:hover {
-  background: #f2f4f7;
-  border-color: #98a2b3;
-}
-
-.cargoFilters .activeFilter {
-  background: #4058f2;
-  color: #ffffff;
-  border-color: #4058f2;
-  box-shadow: 0 8px 20px rgba(64, 88, 242, 0.25);
+  .cargoFilters button {
+    flex: 1;
+    min-width: 90px;
+  }
 }
