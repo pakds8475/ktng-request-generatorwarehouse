@@ -3,8 +3,16 @@ import { downloadDocx, formatDateDots, formatDateLong } from "./docxGenerator.js
 
 const today = "2026-06-03";
 
+const allowedCities = [
+  "Андижан",
+  "Самарканд",
+  "Ташкент",
+  "Фергана",
+  "Наманган",
+  "Бухара",
+];
 
-
+const sortedCities = [...allowedCities].sort((a, b) => a.localeCompare(b, "ru"));
 
 const allowedCargoItems = [
   "Кастомная витрина (с освещением)",
@@ -57,7 +65,7 @@ const allowedCargoItems = [
   "Лайтбокс (комплект)",
   "Монтажные материалы (с освещением)",
   "Повреждённые акцизные марки",
-  "Пластмассовые ценники"
+  "Пластмассовые ценники",
 ];
 
 const getCargoCondition = (cargoName) => {
@@ -78,22 +86,6 @@ const sortedCargoItems = [...allowedCargoItems].sort((a, b) =>
   a.localeCompare(b, "ru")
 );
 
-
-
-
-const allowedCities = [
-  "Андижан",
-  "Самарканд",
-  "Ташкент",
-  "Фергана",
-  "Наманган",
-  "Бухара"
-
-
-
-
-
-];
 const initialForm = {
   applicationType: "issue",
   city: "Андижан",
@@ -107,8 +99,8 @@ const initialForm = {
   signatoryTitle: "Специалист по Логистике",
   cargoInfo: "",
   goods: [
-    { name: "Торговое оборудование 6С9Т (верхняя часть)", weight: "", quantity: "2" },
-    { name: "Торговое оборудование 6С9Т (нижняя часть)", weight: "", quantity: "2" },
+    { name: "Торговое оборудование 6C9T (верхняя часть)", weight: "", quantity: "2" },
+    { name: "Торговое оборудование 6C9T (нижняя часть)", weight: "", quantity: "2" },
     { name: "Кастомная витрина (без освещения)", weight: "", quantity: "2" },
     { name: "Монтажные материалы (без освещения)", weight: "", quantity: "2" },
   ],
@@ -127,7 +119,7 @@ const samarkandExample = {
   signatoryTitle: "Специалист по Логистике",
   cargoInfo: "",
   goods: [
-    { name: "Торговое оборудование 10х2 METAWERK б/у рабочий", weight: "", quantity: "1" },
+    { name: "Торговое оборудование 10x2 METAWERK б/у рабочий", weight: "", quantity: "1" },
   ],
 };
 
@@ -154,25 +146,32 @@ function App() {
   const [form, setForm] = useState(initialForm);
   const [isGenerating, setIsGenerating] = useState(false);
   const [cargoFilter, setCargoFilter] = useState("all");
+
   const filteredCargoItems = sortedCargoItems.filter((cargo) => {
-  if (cargoFilter === "all") {
-    return true;
-  }
+    if (cargoFilter === "all") {
+      return true;
+    }
 
-  return getCargoCondition(cargo) === cargoFilter;
-});
+    return getCargoCondition(cargo) === cargoFilter;
+  });
 
+  const title =
+    form.applicationType === "issue"
+      ? "Заявка на выдачу товара"
+      : "Заявка на приемку";
 
+  const hasRequiredFields =
+    form.city &&
+    form.docDate &&
+    form.arrivalDate &&
+    form.timeRange &&
+    form.vehicleNumber &&
+    form.driverName;
 
-
-
-
-
-  
-  const title = form.applicationType === "issue" ? "Заявка на выдачу товара" : "Заявка на приемку";
-  const hasRequiredFields = form.city && form.docDate && form.arrivalDate && form.timeRange && form.vehicleNumber && form.driverName;
-
-  const previewGoods = useMemo(() => form.goods.filter((item) => item.name || item.weight || item.quantity), [form.goods]);
+  const previewGoods = useMemo(
+    () => form.goods.filter((item) => item.name || item.weight || item.quantity),
+    [form.goods]
+  );
 
   function updateField(name, value) {
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -181,23 +180,32 @@ function App() {
   function updateGoods(index, name, value) {
     setForm((prev) => ({
       ...prev,
-      goods: prev.goods.map((item, itemIndex) => (itemIndex === index ? { ...item, [name]: value } : item)),
+      goods: prev.goods.map((item, itemIndex) =>
+        itemIndex === index ? { ...item, [name]: value } : item
+      ),
     }));
   }
 
   function addGoodsRow() {
-    setForm((prev) => ({ ...prev, goods: [...prev.goods, { name: "", weight: "", quantity: "" }] }));
+    setForm((prev) => ({
+      ...prev,
+      goods: [...prev.goods, { name: "", weight: "", quantity: "" }],
+    }));
   }
 
   function removeGoodsRow(index) {
     setForm((prev) => ({
       ...prev,
-      goods: prev.goods.length === 1 ? prev.goods : prev.goods.filter((_, itemIndex) => itemIndex !== index),
+      goods:
+        prev.goods.length === 1
+          ? prev.goods
+          : prev.goods.filter((_, itemIndex) => itemIndex !== index),
     }));
   }
 
   async function handleDownload() {
     setIsGenerating(true);
+
     try {
       await downloadDocx(form);
     } finally {
@@ -212,9 +220,11 @@ function App() {
           <p className="eyebrow">KT&G Logistics Tool</p>
           <h1>Генератор заявок на выдачу и приемку</h1>
           <p className="heroText">
-            Заполните данные автомобиля, водителя и груза. Сайт автоматически соберет DOCX-заявку в формате ваших документов.
+            Заполните данные автомобиля, водителя и груза. Сайт автоматически
+            соберет DOCX-заявку в формате ваших документов.
           </p>
         </div>
+
         <div className="heroCard">
           <span>Формат</span>
           <strong>DOCX</strong>
@@ -223,9 +233,17 @@ function App() {
       </section>
 
       <section className="toolbar">
-        <button type="button" onClick={() => setForm(initialForm)}>Пример: Андижан выдача</button>
-        <button type="button" onClick={() => setForm(samarkandExample)}>Пример: Самарканд приемка</button>
-        <button type="button" className="secondary" onClick={() => setForm(emptyForm)}>Очистить форму</button>
+        <button type="button" onClick={() => setForm(initialForm)}>
+          Пример: Андижан выдача
+        </button>
+
+        <button type="button" onClick={() => setForm(samarkandExample)}>
+          Пример: Самарканд приемка
+        </button>
+
+        <button type="button" className="secondary" onClick={() => setForm(emptyForm)}>
+          Очистить форму
+        </button>
       </section>
 
       <section className="workspace">
@@ -237,60 +255,102 @@ function App() {
 
           <div className="grid two">
             <Field label="Тип заявки">
-              <select value={form.applicationType} onChange={(event) => updateField("applicationType", event.target.value)}>
+              <select
+                value={form.applicationType}
+                onChange={(event) => updateField("applicationType", event.target.value)}
+              >
                 <option value="issue">Заявка на выдачу товара</option>
                 <option value="acceptance">Заявка на приемку</option>
               </select>
             </Field>
 
             <Field label="Город">
-  <select value={form.city} onChange={(event) => updateField("city", event.target.value)}>
-    <option value="">Выберите город</option>
-    {allowedCities.map((city) => (
-      <option key={city} value={city}>
-        {city}
-      </option>
-    ))}
-  </select>
-</Field>
+              <select
+                value={form.city}
+                onChange={(event) => updateField("city", event.target.value)}
+              >
+                <option value="">Выберите город</option>
+                {sortedCities.map((city) => (
+                  <option key={city} value={city}>
+                    {city}
+                  </option>
+                ))}
+              </select>
+            </Field>
 
             <Field label="Дата документа">
-              <input type="date" value={form.docDate} onChange={(event) => updateField("docDate", event.target.value)} />
+              <input
+                type="date"
+                value={form.docDate}
+                onChange={(event) => updateField("docDate", event.target.value)}
+              />
             </Field>
 
             <Field label="Дата прихода автомобиля">
-              <input type="date" value={form.arrivalDate} onChange={(event) => updateField("arrivalDate", event.target.value)} />
+              <input
+                type="date"
+                value={form.arrivalDate}
+                onChange={(event) => updateField("arrivalDate", event.target.value)}
+              />
             </Field>
 
             <Field label="Время прихода автомобиля">
-              <input value={form.timeRange} onChange={(event) => updateField("timeRange", event.target.value)} placeholder="14:00-16:00" />
+              <input
+                value={form.timeRange}
+                onChange={(event) => updateField("timeRange", event.target.value)}
+                placeholder="14:00-16:00"
+              />
             </Field>
 
             <Field label="№ автомобиля / контейнера">
-              <input value={form.vehicleNumber} onChange={(event) => updateField("vehicleNumber", event.target.value)} placeholder="40 E 366 KB" />
+              <input
+                value={form.vehicleNumber}
+                onChange={(event) => updateField("vehicleNumber", event.target.value)}
+                placeholder="40 E 366 KB"
+              />
             </Field>
           </div>
 
-          <Field label="ФИО водителя" hint="Можно писать в одну строку или переносить строки как в шаблоне.">
-            <textarea value={form.driverName} onChange={(event) => updateField("driverName", event.target.value)} rows={3} placeholder="ФИО водителя" />
+          <Field
+            label="ФИО водителя"
+            hint="Можно писать в одну строку или переносить строки как в шаблоне."
+          >
+            <textarea
+              value={form.driverName}
+              onChange={(event) => updateField("driverName", event.target.value)}
+              rows={3}
+              placeholder="ФИО водителя"
+            />
           </Field>
 
           <div className="grid two">
             <Field label="Хранитель-оператор">
-              <input value={form.operator} onChange={(event) => updateField("operator", event.target.value)} />
+              <input
+                value={form.operator}
+                onChange={(event) => updateField("operator", event.target.value)}
+              />
             </Field>
+
             <Field label="Поклажедатель-заказчик">
-              <input value={form.customer} onChange={(event) => updateField("customer", event.target.value)} />
+              <input
+                value={form.customer}
+                onChange={(event) => updateField("customer", event.target.value)}
+              />
             </Field>
           </div>
 
           <Field label="Должность подписанта со стороны заказчика">
-            <input value={form.signatoryTitle} onChange={(event) => updateField("signatoryTitle", event.target.value)} />
+            <input
+              value={form.signatoryTitle}
+              onChange={(event) => updateField("signatoryTitle", event.target.value)}
+            />
           </Field>
 
           <div className="sectionTitle goodsTitle">
             <h2>Сведения о грузе</h2>
-            <button type="button" onClick={addGoodsRow}>+ Добавить строку</button>
+            <button type="button" onClick={addGoodsRow}>
+              + Добавить строку
+            </button>
           </div>
 
           <div className="goodsTable">
@@ -301,102 +361,133 @@ function App() {
               <span></span>
             </div>
 
-          <div className="cargoFilters">
-  <button
-    type="button"
-    className={cargoFilter === "all" ? "activeFilter" : ""}
-    onClick={() => setCargoFilter("all")}
-  >
-    Все
-  </button>
+            <div className="cargoFilters">
+              <button
+                type="button"
+                className={cargoFilter === "all" ? "activeFilter" : ""}
+                onClick={() => setCargoFilter("all")}
+              >
+                Все
+              </button>
 
-  <button
-    type="button"
-    className={cargoFilter === "new" ? "activeFilter" : ""}
-    onClick={() => setCargoFilter("new")}
-  >
-    Новый
-  </button>
+              <button
+                type="button"
+                className={cargoFilter === "new" ? "activeFilter" : ""}
+                onClick={() => setCargoFilter("new")}
+              >
+                Новый
+              </button>
 
-  <button
-    type="button"
-    className={cargoFilter === "used" ? "activeFilter" : ""}
-    onClick={() => setCargoFilter("used")}
-  >
-    БУ
-  </button>
+              <button
+                type="button"
+                className={cargoFilter === "used" ? "activeFilter" : ""}
+                onClick={() => setCargoFilter("used")}
+              >
+                БУ
+              </button>
 
-  <button
-    type="button"
-    className={cargoFilter === "defect" ? "activeFilter" : ""}
-    onClick={() => setCargoFilter("defect")}
-  >
-    Брак
-  </button>
-</div>
+              <button
+                type="button"
+                className={cargoFilter === "defect" ? "activeFilter" : ""}
+                onClick={() => setCargoFilter("defect")}
+              >
+                Брак
+              </button>
+            </div>
 
-            
- {form.goods.map((item, index) => (
-  <div className="goodsRow" key={index}>
-    <select
-      value={item.name}
-      onChange={(event) => updateGoods(index, "name", event.target.value)}
-    >
-      <option value="">Выберите груз</option>
-      {filteredCargoItems.map((cargo) => (
-        <option key={cargo} value={cargo}>
-          {cargo}
-        </option>
-      ))}
-    </select>
+            {form.goods.map((item, index) => (
+              <div className="goodsRow" key={index}>
+                <select
+                  value={item.name}
+                  onChange={(event) => updateGoods(index, "name", event.target.value)}
+                >
+                  <option value="">Выберите груз</option>
 
-    <input
-      value={item.weight}
-      onChange={(event) => updateGoods(index, "weight", event.target.value)}
-      placeholder="Вес"
-    />
+                  {item.name && !filteredCargoItems.includes(item.name) ? (
+                    <option value={item.name}>{item.name}</option>
+                  ) : null}
 
-    <input
-      value={item.quantity}
-      onChange={(event) => updateGoods(index, "quantity", event.target.value)}
-      placeholder="Кол-во"
-    />
+                  {filteredCargoItems.map((cargo) => (
+                    <option key={cargo} value={cargo}>
+                      {cargo}
+                    </option>
+                  ))}
+                </select>
 
-    <button
-      type="button"
-      className="iconButton"
-      onClick={() => removeGoodsRow(index)}
-      title="Удалить строку"
-    >
-      ×
-    </button>
-  </div>
-))}
-                <input value={item.weight} onChange={(event) => updateGoods(index, "weight", event.target.value)} placeholder="—" />
-                <input value={item.quantity} onChange={(event) => updateGoods(index, "quantity", event.target.value)} placeholder="1" />
-                <button type="button" className="iconButton" onClick={() => removeGoodsRow(index)} title="Удалить строку">×</button>
+                <input
+                  value={item.weight}
+                  onChange={(event) => updateGoods(index, "weight", event.target.value)}
+                  placeholder="Вес"
+                />
+
+                <input
+                  value={item.quantity}
+                  onChange={(event) => updateGoods(index, "quantity", event.target.value)}
+                  placeholder="Кол-во"
+                />
+
+                <button
+                  type="button"
+                  className="iconButton"
+                  onClick={() => removeGoodsRow(index)}
+                  title="Удалить строку"
+                >
+                  ×
+                </button>
               </div>
             ))}
           </div>
 
           <Field label="Иная информация о грузе">
-            <textarea value={form.cargoInfo} onChange={(event) => updateField("cargoInfo", event.target.value)} rows={2} placeholder="Дополнительная информация, если есть" />
+            <textarea
+              value={form.cargoInfo}
+              onChange={(event) => updateField("cargoInfo", event.target.value)}
+              rows={2}
+              placeholder="Дополнительная информация, если есть"
+            />
           </Field>
 
-          <button type="button" className="download" disabled={!hasRequiredFields || isGenerating} onClick={handleDownload}>
+          <button
+            type="button"
+            className="download"
+            disabled={!hasRequiredFields || isGenerating}
+            onClick={handleDownload}
+          >
             {isGenerating ? "Создаю DOCX..." : "Скачать DOCX"}
           </button>
 
-          {!hasRequiredFields ? <p className="warning">Заполните город, даты, время, номер авто и ФИО водителя.</p> : null}
+          {!hasRequiredFields ? (
+            <p className="warning">
+              Заполните город, даты, время, номер авто и ФИО водителя.
+            </p>
+          ) : null}
         </form>
 
         <aside className="preview">
           <div className="paper">
-            <p>№ от {form.docDate ? formatDateLong(form.docDate) : "«__» ________ 2026 г."}</p>
+            <p>
+              № от{" "}
+              {form.docDate
+                ? formatDateLong(form.docDate)
+                : "«__» ________ 2026 г."}
+            </p>
+
             <h3>{title}</h3>
-            <p className="center">г. {form.city || "________"} {form.docDate ? formatDateLong(form.docDate) : "«__» ________ 2026 г."}</p>
-            <p><b>ХРАНИТЕЛЬ-ОПЕРАТОР :</b> {form.operator}</p>
-            <p><b>ПОКЛАЖЕДАТЕЛЬ-ЗАКАЗЧИК:</b> {form.customer}</p>
+
+            <p className="center">
+              г. {form.city || "________"}{" "}
+              {form.docDate
+                ? formatDateLong(form.docDate)
+                : "«__» ________ 2026 г."}
+            </p>
+
+            <p>
+              <b>ХРАНИТЕЛЬ-ОПЕРАТОР :</b> {form.operator}
+            </p>
+
+            <p>
+              <b>ПОКЛАЖЕДАТЕЛЬ-ЗАКАЗЧИК:</b> {form.customer}
+            </p>
 
             <table>
               <thead>
@@ -410,13 +501,23 @@ function App() {
                   <th>Кол-во</th>
                 </tr>
               </thead>
+
               <tbody>
-                {(previewGoods.length ? previewGoods : [{ name: "", weight: "", quantity: "" }]).map((item, index) => (
+                {(previewGoods.length
+                  ? previewGoods
+                  : [{ name: "", weight: "", quantity: "" }]
+                ).map((item, index) => (
                   <tr key={index}>
                     <td>{index === 0 ? "1" : ""}</td>
-                    <td>{index === 0 ? `${formatDateDots(form.arrivalDate)} ${form.timeRange}` : ""}</td>
+                    <td>
+                      {index === 0
+                        ? `${formatDateDots(form.arrivalDate)} ${form.timeRange}`
+                        : ""}
+                    </td>
                     <td>{index === 0 ? form.vehicleNumber : ""}</td>
-                    <td>{index === 0 ? form.driverName.replaceAll("\n", " ") : ""}</td>
+                    <td>
+                      {index === 0 ? form.driverName.replaceAll("\n", " ") : ""}
+                    </td>
                     <td>{item.name}</td>
                     <td>{item.weight}</td>
                     <td>{item.quantity}</td>
@@ -426,9 +527,29 @@ function App() {
             </table>
 
             <p>Иная информация о грузе: {form.cargoInfo}</p>
+
             <div className="signatures">
-              <span>От Хранителя-Оператора:<br />______________________<br />{form.operator}<br />М.П.</span>
-              <span>От Поклажедателя-Заказчика:<br />{form.signatoryTitle}<br />{form.customer}<br />___________________<br />М.П.</span>
+              <span>
+                От Хранителя-Оператора:
+                <br />
+                ______________________
+                <br />
+                {form.operator}
+                <br />
+                М.П.
+              </span>
+
+              <span>
+                От Поклажедателя-Заказчика:
+                <br />
+                {form.signatoryTitle}
+                <br />
+                {form.customer}
+                <br />
+                ___________________
+                <br />
+                М.П.
+              </span>
             </div>
           </div>
         </aside>
