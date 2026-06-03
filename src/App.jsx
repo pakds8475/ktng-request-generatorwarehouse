@@ -2,7 +2,21 @@ import { useMemo, useState } from "react";
 import { downloadDocx, formatDateDots, formatDateLong } from "./docxGenerator.js";
 
 const today = "2026-06-03";
-
+const allowedCities = [
+  "Андижан",
+  "Самарканд",
+  "Ташкент",
+  "Фергана",
+  "Наманган",
+  "Бухара",
+  "Карши",
+  "Нукус",
+  "Ургенч",
+  "Термез",
+  "Навои",
+  "Джизак",
+  "Гулистан"
+];
 const initialForm = {
   applicationType: "issue",
   city: "Андижан",
@@ -138,8 +152,15 @@ function App() {
             </Field>
 
             <Field label="Город">
-              <input value={form.city} onChange={(event) => updateField("city", event.target.value)} placeholder="Например: Андижан" />
-            </Field>
+  <select value={form.city} onChange={(event) => updateField("city", event.target.value)}>
+    <option value="">Выберите город</option>
+    {allowedCities.map((city) => (
+      <option key={city} value={city}>
+        {city}
+      </option>
+    ))}
+  </select>
+</Field>
 
             <Field label="Дата документа">
               <input type="date" value={form.docDate} onChange={(event) => updateField("docDate", event.target.value)} />
