@@ -336,23 +336,42 @@ function App() {
 </div>
 
             
-            {form.goods.map((item, index) => (
-              <div className="goodsRow" key={index}>
-              <select value={item.name} onChange={(event) => updateGoods(index, "name", event.target.value)}>
- <select
-  value={item.name}
-  onChange={(event) => updateGoods(index, "name", event.target.value)}
->
-  <option value="">Выберите груз</option>
-  {filteredCargoItems.map((cargo) => (
-    <option key={cargo} value={cargo}>
-      {cargo}
-    </option>
-  ))}
-</select>
+ {form.goods.map((item, index) => (
+  <div className="goodsRow" key={index}>
+    <select
+      value={item.name}
+      onChange={(event) => updateGoods(index, "name", event.target.value)}
+    >
+      <option value="">Выберите груз</option>
+      {filteredCargoItems.map((cargo) => (
+        <option key={cargo} value={cargo}>
+          {cargo}
+        </option>
+      ))}
+    </select>
+
+    <input
+      value={item.weight}
+      onChange={(event) => updateGoods(index, "weight", event.target.value)}
+      placeholder="Вес"
+    />
+
+    <input
+      value={item.quantity}
+      onChange={(event) => updateGoods(index, "quantity", event.target.value)}
+      placeholder="Кол-во"
+    />
+
+    <button
+      type="button"
+      className="iconButton"
+      onClick={() => removeGoodsRow(index)}
+      title="Удалить строку"
+    >
+      ×
+    </button>
+  </div>
 ))}
-  ))}
-</select>
                 <input value={item.weight} onChange={(event) => updateGoods(index, "weight", event.target.value)} placeholder="—" />
                 <input value={item.quantity} onChange={(event) => updateGoods(index, "quantity", event.target.value)} placeholder="1" />
                 <button type="button" className="iconButton" onClick={() => removeGoodsRow(index)} title="Удалить строку">×</button>
