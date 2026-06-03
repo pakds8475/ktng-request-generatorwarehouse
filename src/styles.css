@@ -368,4 +368,29 @@ textarea:focus {
   .iconButton {
     width: 100%;
   }
+  .cargoFilters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 10px 0 16px;
+}
+
+.cargoFilters button {
+  border: 1px solid #d0d5dd;
+  background: #ffffff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.cargoFilters button:hover {
+  background: #f3f4f6;
+}
+
+.cargoFilters .activeFilter {
+  background: #111827;
+  color: #ffffff;
+  border-color: #111827;
+}
 }
