@@ -133,9 +133,9 @@ const getCargoGroup = (cargoName) => {
 const cargoGroupOrder = [
   "XL — 12C10T",
   "L — 10x10 / 10C9T",
-  "M — 6x10 / 6C9T",
+  "M — 6x10 / 6C9T / 6C9T",
   "C — 10x6 / 10C6T",
-  "S — 2x10",
+  "S — 2x10 / 10x2",
   "Прочее — витрины / материалы / POSM",
   "Другое",
 ];
