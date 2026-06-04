@@ -434,13 +434,7 @@ function App() {
             </div>
 
             <div className="cargoFilters">
-              <button
-                type="button"
-                className={cargoFilter === "all" ? "activeFilter" : ""}
-                onClick={() => setCargoFilter("all")}
-              >
-                Все
-              </button>
+   
 
               <button
                 type="button"
@@ -464,6 +458,13 @@ function App() {
                 onClick={() => setCargoFilter("defect")}
               >
                 Брак
+              </button>
+                         <button
+                type="button"
+                className={cargoFilter === "all" ? "activeFilter" : ""}
+                onClick={() => setCargoFilter("all")}
+              >
+                Все
               </button>
             </div>
 
