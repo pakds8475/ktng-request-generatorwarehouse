@@ -231,20 +231,12 @@ function App() {
           <small>готово для отправки / печати</small>
         </div>
       </section>
-
-      <section className="toolbar">
-        <button type="button" onClick={() => setForm(initialForm)}>
-          Пример: Андижан выдача
-        </button>
-
-        <button type="button" onClick={() => setForm(samarkandExample)}>
-          Пример: Самарканд приемка
-        </button>
-
-        <button type="button" className="secondary" onClick={() => setForm(emptyForm)}>
-          Очистить форму
-        </button>
-      </section>
+      
+<section className="toolbar">
+  <button type="button" className="secondary" onClick={() => setForm(emptyForm)}>
+    Очистить форму
+  </button>
+</section>
 
       <section className="workspace">
         <form className="panel" onSubmit={(event) => event.preventDefault()}>
