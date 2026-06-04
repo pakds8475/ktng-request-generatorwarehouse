@@ -94,9 +94,9 @@ const initialForm = {
   timeRange: "",
   vehicleNumber: "",
   driverName: "",
-  operator: "",
-  customer: "",
-  signatoryTitle: "",
+  operator: "ООО «SIMBA»",
+  customer: "ИП OOO «KTNG GLOBAL TAS»",
+  signatoryTitle: "Специалист по Логистике",
   cargoInfo: "",
   goods: [{ name: "", weight: "", quantity: "" }],
 };
