@@ -385,23 +385,18 @@ return ( <main className="page"> <section className="hero"> <div> <p className="
 
         {form.goods.map((item, index) => (
           <div className="goodsRow" key={index}>
-            <select
-              value={item.name}
-              onChange={(event) => updateGoods(index, "name", event.target.value)}
-            >
-              <option value="">Выберите груз</option>
+           <select
+  value={filteredCargoItems.includes(item.name) ? item.name : ""}
+  onChange={(event) => updateGoods(index, "name", event.target.value)}
+>
+  <option value="">Выберите груз</option>
 
-              {item.name && !filteredCargoItems.includes(item.name) ? (
-                <option value={item.name}>{item.name}</option>
-              ) : null}
-
-              {filteredCargoItems.map((cargo) => (
-                <option key={cargo} value={cargo}>
-                  {cargo}
-                </option>
-              ))}
-            </select>
-
+  {filteredCargoItems.map((cargo) => (
+    <option key={cargo} value={cargo}>
+      {cargo}
+    </option>
+  ))}
+</select>
             <input
               value={item.weight}
               onChange={(event) => updateGoods(index, "weight", event.target.value)}
