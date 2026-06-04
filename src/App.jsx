@@ -80,9 +80,87 @@ const getCargoCondition = (cargoName) => {
   return "new";
 };
 
-const sortedCargoItems = [...allowedCargoItems].sort((a, b) =>
-  a.localeCompare(b, "ru")
-);
+const normalizeCargoKey = (value) =>
+  value
+    .trim()
+    .replace(/\s+/g, " ")
+    .replace(/[Сс]/g, "C")
+    .replace(/[Хх]/g, "x")
+    .toLowerCase();
+
+const uniqueCargoItems = allowedCargoItems.filter((cargo, index, array) => {
+  const currentKey = normalizeCargoKey(cargo);
+
+  return array.findIndex((item) => normalizeCargoKey(item) === currentKey) === index;
+});
+
+const getCargoGroup = (cargoName) => {
+  const text = normalizeCargoKey(cargoName);
+
+  if (text.includes("12c10t")) {
+    return "XL — 12C10T";
+  }
+
+  if (text.includes("10x10") || text.includes("10c9t")) {
+    return "L — 10x10 / 10C9T";
+  }
+
+  if (text.includes("6x10") || text.includes("6c9t")) {
+    return "M — 6x10 / 6C9T";
+  }
+
+  if (text.includes("10x6") || text.includes("10c6t")) {
+    return "C — 10x6 / 10C6T";
+  }
+
+  if (text.includes("2x10")) {
+    return "S — 2x10";
+  }
+
+  if (
+    text.includes("витрина") ||
+    text.includes("монтажные") ||
+    text.includes("лайтбокс") ||
+    text.includes("ценники") ||
+    text.includes("марки")
+  ) {
+    return "Прочее — витрины / материалы / POSM";
+  }
+
+  return "Другое";
+};
+
+const cargoGroupOrder = [
+  "XL — 12C10T",
+  "L — 10x10 / 10C9T",
+  "M — 6x10 / 6C9T",
+  "C — 10x6 / 10C6T",
+  "S — 2x10",
+  "Прочее — витрины / материалы / POSM",
+  "Другое",
+];
+
+const sortedCargoItems = [...uniqueCargoItems].sort((a, b) => {
+  const groupA = getCargoGroup(a);
+  const groupB = getCargoGroup(b);
+
+  const groupIndexA = cargoGroupOrder.indexOf(groupA);
+  const groupIndexB = cargoGroupOrder.indexOf(groupB);
+
+  if (groupIndexA !== groupIndexB) {
+    return groupIndexA - groupIndexB;
+  }
+
+  return a.localeCompare(b, "ru");
+});
+
+const groupCargoItems = (items) =>
+  cargoGroupOrder
+    .map((groupName) => ({
+      groupName,
+      items: items.filter((item) => getCargoGroup(item) === groupName),
+    }))
+    .filter((group) => group.items.length > 0);
 
 const initialForm = {
   applicationType: "issue",
@@ -125,6 +203,8 @@ function App() {
 
     return getCargoCondition(cargo) === cargoFilter;
   });
+
+  const groupedCargoItems = groupCargoItems(filteredCargoItems);
 
   const title =
     form.applicationType === "issue"
@@ -390,17 +470,21 @@ function App() {
             {form.goods.map((item, index) => (
               <div className="goodsRow" key={index}>
                 <select
-                  value={filteredCargoItems.includes(item.name) ? item.name : ""}
-                  onChange={(event) => updateGoods(index, "name", event.target.value)}
-                >
-                  <option value="">Выберите груз</option>
+  value={filteredCargoItems.includes(item.name) ? item.name : ""}
+  onChange={(event) => updateGoods(index, "name", event.target.value)}
+>
+  <option value="">Выберите груз</option>
 
-                  {filteredCargoItems.map((cargo) => (
-                    <option key={cargo} value={cargo}>
-                      {cargo}
-                    </option>
-                  ))}
-                </select>
+  {groupedCargoItems.map((group) => (
+    <optgroup key={group.groupName} label={group.groupName}>
+      {group.items.map((cargo) => (
+        <option key={cargo} value={cargo}>
+          {cargo}
+        </option>
+      ))}
+    </optgroup>
+  ))}
+</select>
 
                 <input
                   value={item.weight}
