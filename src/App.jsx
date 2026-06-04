@@ -236,15 +236,27 @@ function App() {
           </div>
 
           <div className="grid two">
-            <Field label="Тип заявки">
-              <select
-                value={form.applicationType}
-                onChange={(event) => updateField("applicationType", event.target.value)}
-              >
-                <option value="issue">Заявка на выдачу товара</option>
-                <option value="acceptance">Заявка на приемку</option>
-              </select>
-            </Field>
+<div className="field">
+  <span>Тип заявки</span>
+
+  <div className="applicationTypeButtons">
+    <button
+      type="button"
+      className={form.applicationType === "issue" ? "issueButton active" : "issueButton"}
+      onClick={() => updateField("applicationType", "issue")}
+    >
+      Выдача товара
+    </button>
+
+    <button
+      type="button"
+      className={form.applicationType === "acceptance" ? "acceptanceButton active" : "acceptanceButton"}
+      onClick={() => updateField("applicationType", "acceptance")}
+    >
+      Приемка
+    </button>
+  </div>
+</div>
 
             <Field label="Город">
               <select
