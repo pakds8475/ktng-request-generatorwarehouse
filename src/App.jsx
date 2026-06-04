@@ -88,22 +88,17 @@ const sortedCargoItems = [...allowedCargoItems].sort((a, b) =>
 
 const initialForm = {
   applicationType: "issue",
-  city: "Андижан",
-  docDate: today,
-  arrivalDate: today,
-  timeRange: "14:00-16:00",
-  vehicleNumber: "40 E 366 KB",
-  driverName: "KADIROV UMID\nABDUVAXOBOVICH",
-  operator: "ООО «SIMBA»",
-  customer: "ИП OOO «KTNG GLOBAL TAS»",
-  signatoryTitle: "Специалист по Логистике",
+  city: "",
+  docDate: "",
+  arrivalDate: "",
+  timeRange: "",
+  vehicleNumber: "",
+  driverName: "",
+  operator: "",
+  customer: "",
+  signatoryTitle: "",
   cargoInfo: "",
-  goods: [
-    { name: "Торговое оборудование 6C9T (верхняя часть)", weight: "", quantity: "2" },
-    { name: "Торговое оборудование 6C9T (нижняя часть)", weight: "", quantity: "2" },
-    { name: "Кастомная витрина (без освещения)", weight: "", quantity: "2" },
-    { name: "Монтажные материалы (без освещения)", weight: "", quantity: "2" },
-  ],
+  goods: [{ name: "", weight: "", quantity: "" }],
 };
 
 const samarkandExample = {
@@ -125,11 +120,6 @@ const samarkandExample = {
 
 const emptyForm = {
   ...initialForm,
-  city: "",
-  vehicleNumber: "",
-  driverName: "",
-  cargoInfo: "",
-  goods: [{ name: "", weight: "", quantity: "" }],
 };
 
 function Field({ label, children, hint }) {
