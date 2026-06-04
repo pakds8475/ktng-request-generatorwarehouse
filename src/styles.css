@@ -465,3 +465,39 @@ textarea:focus {
     grid-template-columns: 1fr;
   }
 }
+
+.requestChoiceBlock {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.cityButtons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.cityButton {
+  border: 1px solid #d0d5dd;
+  background: #ffffff;
+  color: #14213d;
+  padding: 10px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 800;
+  transition: 0.2s ease;
+}
+
+.cityButton:hover {
+  background: #f2f4f7;
+  border-color: #98a2b3;
+}
+
+.cityButton.active {
+  background: #14213d;
+  color: #ffffff;
+  border-color: #14213d;
+  box-shadow: 0 8px 20px rgba(20, 33, 61, 0.22);
+}
