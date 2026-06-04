@@ -410,3 +410,58 @@ textarea:focus {
     min-width: 90px;
   }
 }
+
+.applicationTypeButtons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.applicationTypeButtons button {
+  border: 1px solid transparent;
+  border-radius: 14px;
+  padding: 14px 16px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.issueButton {
+  background: #eef3ff;
+  color: #3155d4;
+  border-color: #b9c7ff !important;
+}
+
+.issueButton:hover {
+  background: #dfe7ff;
+}
+
+.issueButton.active {
+  background: #4263eb;
+  color: #ffffff;
+  border-color: #4263eb !important;
+  box-shadow: 0 10px 24px rgba(66, 99, 235, 0.25);
+}
+
+.acceptanceButton {
+  background: #e9fbf4;
+  color: #0b8f67;
+  border-color: #a8ead2 !important;
+}
+
+.acceptanceButton:hover {
+  background: #d8f8eb;
+}
+
+.acceptanceButton.active {
+  background: #0ca678;
+  color: #ffffff;
+  border-color: #0ca678 !important;
+  box-shadow: 0 10px 24px rgba(12, 166, 120, 0.25);
+}
+
+@media (max-width: 720px) {
+  .applicationTypeButtons {
+    grid-template-columns: 1fr;
+  }
+}
