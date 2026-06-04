@@ -105,7 +105,7 @@ const getCargoGroup = (cargoName) => {
     return "L — 10x10 / 10C9T";
   }
 
-  if (text.includes("6x10") || text.includes("6c9t")) {
+  if (text.includes("6x10") || text.includes("6c9t") || text.includes("6c9t")) {
     return "M — 6x10 / 6C9T / 6C9T";
   }
 
@@ -113,7 +113,7 @@ const getCargoGroup = (cargoName) => {
     return "C — 10x6 / 10C6T";
   }
 
-  if (text.includes("2x10")) {
+  if (text.includes("2x10") || text.includes("2x10")) {
     return "S — 2x10 / 10x2";
   }
 
