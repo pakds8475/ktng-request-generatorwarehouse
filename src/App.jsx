@@ -398,13 +398,47 @@ function App() {
               />
             </Field>
 
-            <Field label="Дата прихода автомобиля">
-              <input
-                type="date"
-                value={form.arrivalDate}
-                onChange={(event) => updateField("arrivalDate", event.target.value)}
-              />
-            </Field>
+           <Field label="Время прихода автомобиля">
+  <div className="timeRangeInputs">
+    <select
+      value={form.timeStart || ""}
+      onChange={(event) => {
+        const newStart = event.target.value;
+        const end = form.timeEnd || "";
+
+        updateField("timeStart", newStart);
+        updateField("timeRange", newStart && end ? `${newStart}-${end}` : "");
+      }}
+    >
+      <option value="">С</option>
+      {timeOptions.map((time) => (
+        <option key={time} value={time}>
+          {time}
+        </option>
+      ))}
+    </select>
+
+    <span>—</span>
+
+    <select
+      value={form.timeEnd || ""}
+      onChange={(event) => {
+        const newEnd = event.target.value;
+        const start = form.timeStart || "";
+
+        updateField("timeEnd", newEnd);
+        updateField("timeRange", start && newEnd ? `${start}-${newEnd}` : "");
+      }}
+    >
+      <option value="">До</option>
+      {timeOptions.map((time) => (
+        <option key={time} value={time}>
+          {time}
+        </option>
+      ))}
+    </select>
+  </div>
+</Field>
 
 
 
