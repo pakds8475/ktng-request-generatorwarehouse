@@ -446,11 +446,13 @@ margin: {
             spacing: { after: 120 },
           }),
 
-          paragraph(`г. ${city} ${formatDateLong(data.docDate)}`, {
-            size: 24,
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 160 },
-          }),
+paragraph(`г. ${city} ${formatDateLong(data.docDate)}`, {
+  size: 24,
+  alignment: AlignmentType.CENTER,
+  spacing: { after: 520 },
+}),
+
+paragraph(`ХРАНИТЕЛЬ-ОПЕРАТОР: ${operator}`, {
 
           paragraph(`ХРАНИТЕЛЬ-ОПЕРАТОР: ${operator}`, {
             bold: true,
