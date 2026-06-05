@@ -700,7 +700,7 @@ goods: [
     </div>
   );
 })}
-
+</div>
 
           <Field label="Иная информация о грузе">
             <textarea
