@@ -98,7 +98,7 @@ function cell(text, options = {}) {
         alignment: options.alignment ?? AlignmentType.CENTER,
         children: [
           new TextRun({
-            text: safeValue(text),
+            text: text ?? "",
             bold: options.bold ?? false,
             size: options.size ?? 20,
             font: "Times New Roman",
@@ -130,6 +130,7 @@ function goodsTableRows(data) {
             ? VerticalMergeType.RESTART
             : VerticalMergeType.CONTINUE,
         }),
+
         cell(isFirst ? dateTime : "", {
           width: 1800,
           alignment: AlignmentType.CENTER,
@@ -137,29 +138,34 @@ function goodsTableRows(data) {
             ? VerticalMergeType.RESTART
             : VerticalMergeType.CONTINUE,
         }),
-        cell(isFirst ? safeValue(data.vehicleNumber) : "", {
+
+        cell(isFirst ? (data.vehicleNumber || "") : "", {
           width: 1300,
           alignment: AlignmentType.CENTER,
           verticalMerge: isFirst
             ? VerticalMergeType.RESTART
             : VerticalMergeType.CONTINUE,
         }),
-        cell(isFirst ? safeValue(data.driverName).replaceAll("\n", " ") : "", {
+
+        cell(isFirst ? (data.driverName || "").replaceAll("\n", " ") : "", {
           width: 2100,
           alignment: AlignmentType.CENTER,
           verticalMerge: isFirst
             ? VerticalMergeType.RESTART
             : VerticalMergeType.CONTINUE,
         }),
-        cell(safeValue(item.name), {
+
+        cell(item.name || "", {
           width: 4300,
           alignment: AlignmentType.LEFT,
         }),
-        cell(safeValue(item.weight), {
+
+        cell(item.weight || "", {
           width: 900,
           alignment: AlignmentType.CENTER,
         }),
-        cell(safeValue(item.quantity), {
+
+        cell(item.quantity || "", {
           width: 900,
           alignment: AlignmentType.CENTER,
         }),
