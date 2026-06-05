@@ -11,6 +11,14 @@ const allowedCities = [
 ];
 
 const sortedCities = [...allowedCities].sort((a, b) => a.localeCompare(b, "ru"));
+const cityOperators = {
+  "Ташкент": "ООО «RUZ TRADER»",
+  "Андижан": "ООО «SIMBA»",
+  "Самарканд": "ООО «SIMBA»",
+  "Фергана": "ООО «SIMBA»",
+  "Наманган": "ООО «SIMBA»",
+  "Бухара": "ООО «SIMBA»",
+};
 const timeOptions = [
   "08:00",
   "08:30",
@@ -365,14 +373,17 @@ function App() {
 
               <div className="cityButtons">
                 {sortedCities.map((city) => (
-                  <button
-                    type="button"
-                    key={city}
-                    className={form.city === city ? "cityButton active" : "cityButton"}
-                    onClick={() => updateField("city", city)}
-                  >
-                    {city}
-                  </button>
+                 <button
+  type="button"
+  key={city}
+  className={form.city === city ? "cityButton active" : "cityButton"}
+  onClick={() => {
+    updateField("city", city);
+    updateField("operator", cityOperators[city] || "");
+  }}
+>
+  {city}
+</button>
                 ))}
               </div>
             </div>
