@@ -1,6 +1,16 @@
 import { useMemo, useState } from "react";
 import { downloadDocx, formatDateDots, formatDateLong } from "./docxGenerator.js";
 
+const getTodayDate = () => {
+  const today = new Date();
+
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
 const allowedCities = [
   "Андижан",
   "Бухара",
@@ -256,7 +266,7 @@ const groupCargoItems = (items) =>
 const initialForm = {
   applicationType: "issue",
   city: "",
-  docDate: "",
+  docDate: getTodayDate(),
   arrivalDate: "",
   timeRange: "",
   timeStart: "",
