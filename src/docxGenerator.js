@@ -434,9 +434,9 @@ sections: [
 margin: {
   top: 600,
   right: 600,
-  bottom: 3000,
+  bottom: 3600,
   left: 600,
-  footer: 1200,
+  footer: 2200,
 },
       },
     },
