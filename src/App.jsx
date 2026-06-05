@@ -3,11 +3,12 @@ import { downloadDocx, formatDateDots, formatDateLong } from "./docxGenerator.js
 
 const allowedCities = [
   "Андижан",
+  "Бухара",
+  "Коканд",
+  "Наманган",
   "Самарканд",
   "Ташкент",
   "Фергана",
-  "Наманган",
-  "Бухара",
 ];
 
 const sortedCities = [...allowedCities].sort((a, b) => a.localeCompare(b, "ru"));
@@ -19,6 +20,61 @@ const cityOperators = {
   "Наманган": "ООО «SIMBA»",
   "Бухара": "ООО «SIMBA»",
 };
+const cityDriverOptions = {
+  "Наманган": [
+    {
+      vehicleNumber: "50 Q 684 HB",
+      driverName: "PULATOV JAXONGIR RAXIMJONOVICH",
+    },
+  ],
+
+  "Коканд": [
+    {
+      vehicleNumber: "50 Q 684 HB",
+      driverName: "PULATOV JAXONGIR RAXIMJONOVICH",
+    },
+  ],
+
+  "Самарканд": [
+    {
+      vehicleNumber: "30 M 463 SB",
+      driverName: "XUSAINOV AMRIDDIN SADRIDDINOVICH",
+    },
+  ],
+
+  "Ташкент": [
+    {
+      vehicleNumber: "01 B 781 XC",
+      driverName: "TO’XTABOYEV NODIRJON NISHONBOY O’G’LI",
+    },
+    {
+      vehicleNumber: "01 Z 751 QA",
+      driverName: "ISHANOV JAMOLIDDIN ANVAROVICH",
+    },
+  ],
+
+  "Фергана": [
+    {
+      vehicleNumber: "40 E 366 KB",
+      driverName: "KADIROV UMID ABDUVAXOBOVICH",
+    },
+  ],
+
+  "Андижан": [
+    {
+      vehicleNumber: "40 E 366 KB",
+      driverName: "KADIROV UMID ABDUVAXOBOVICH",
+    },
+  ],
+
+  "Бухара": [
+    {
+      vehicleNumber: "80 L 118 AB",
+      driverName: "SALIYEV SANJAR BAXSHILLOYEVICH",
+    },
+  ],
+};
+
 const timeOptions = [
   "08:00",
   "08:30",
@@ -264,7 +320,26 @@ function App() {
   function updateField(name, value) {
     setForm((prev) => ({ ...prev, [name]: value }));
   }
+function selectDriverOption(option) {
+  setForm((prev) => ({
+    ...prev,
+    vehicleNumber: option.vehicleNumber,
+    driverName: option.driverName,
+  }));
+}
 
+function selectCity(city) {
+  const options = cityDriverOptions[city] || [];
+  const firstOption = options[0];
+
+  setForm((prev) => ({
+    ...prev,
+    city,
+    operator: cityOperators[city] || "",
+    vehicleNumber: firstOption ? firstOption.vehicleNumber : "",
+    driverName: firstOption ? firstOption.driverName : "",
+  }));
+}
   function updateGoods(index, name, value) {
     setForm((prev) => ({
       ...prev,
@@ -373,19 +448,37 @@ function App() {
 
               <div className="cityButtons">
                 {sortedCities.map((city) => (
-                 <button
+                <button
   type="button"
   key={city}
   className={form.city === city ? "cityButton active" : "cityButton"}
-  onClick={() => {
-    updateField("city", city);
-    updateField("operator", cityOperators[city] || "");
-  }}
+  onClick={() => selectCity(city)}
 >
   {city}
 </button>
                 ))}
               </div>
+
+{cityDriverOptions[form.city]?.length > 1 ? (
+  <div className="driverOptions">
+    {cityDriverOptions[form.city].map((option) => (
+      <button
+        type="button"
+        key={`${option.vehicleNumber}-${option.driverName}`}
+        className={
+          form.vehicleNumber === option.vehicleNumber
+            ? "driverOption active"
+            : "driverOption"
+        }
+        onClick={() => selectDriverOption(option)}
+      >
+        {option.vehicleNumber} — {option.driverName}
+      </button>
+    ))}
+  </div>
+) : null}
+
+              
             </div>
           </div>
 
