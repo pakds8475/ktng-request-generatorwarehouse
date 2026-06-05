@@ -402,12 +402,6 @@ function createSignatureTable(data) {
 function createBottomFooter(data) {
   return new Footer({
     children: [
-      paragraph(`Иная информация о грузе: ${safeValue(data.cargoInfo)}`, {
-        size: 22,
-        alignment: AlignmentType.LEFT,
-        spacing: { after: 160 },
-      }),
-
       createSignatureTable(data),
     ],
   });
@@ -471,6 +465,10 @@ margin: {
           }),
 
           createGoodsTable(data),
+      paragraph(`Иная информация о грузе: ${safeValue(data.cargoInfo)}`, {
+  size: 24,
+  spacing: { before: 180, after: 80 },
+}),
 
 
         ],
