@@ -32,6 +32,16 @@ const cityOperators = {
   "Бухара": "ООО «SIMBA»",
 };
 const cityDriverOptions = {
+    "Ташкент": [
+    {
+      vehicleNumber: "01 B 781 XC",
+      driverName: "TO’XTABOYEV NODIRJON NISHONBOY O’G’LI",
+    },
+    {
+      vehicleNumber: "01 Z 751 QA",
+      driverName: "ISHANOV JAMOLIDDIN ANVAROVICH",
+    },
+  ],
   "Наманган": [
     {
       vehicleNumber: "50 Q 684 HB",
@@ -53,16 +63,7 @@ const cityDriverOptions = {
     },
   ],
 
-  "Ташкент": [
-    {
-      vehicleNumber: "01 B 781 XC",
-      driverName: "TO’XTABOYEV NODIRJON NISHONBOY O’G’LI",
-    },
-    {
-      vehicleNumber: "01 Z 751 QA",
-      driverName: "ISHANOV JAMOLIDDIN ANVAROVICH",
-    },
-  ],
+
 
   "Фергана": [
     {
