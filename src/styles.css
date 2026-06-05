@@ -523,3 +523,32 @@ textarea:focus {
   color: #667085;
   font-weight: 800;
 }
+.driverOptions {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.driverOption {
+  border: 1px solid #d0d5dd;
+  background: #ffffff;
+  color: #14213d;
+  padding: 10px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: left;
+  transition: 0.2s ease;
+}
+
+.driverOption:hover {
+  background: #f2f4f7;
+  border-color: #98a2b3;
+}
+
+.driverOption.active {
+  background: #14213d;
+  color: #ffffff;
+  border-color: #14213d;
+}
