@@ -602,12 +602,9 @@ goods: [
             />
           </Field>
 
-          <div className="sectionTitle goodsTitle">
-            <h2>Сведения о грузе</h2>
-            <button type="button" onClick={addGoodsRow}>
-              + Добавить строку
-            </button>
-          </div>
+<div className="sectionTitle goodsTitle">
+  <h2>Сведения о грузе</h2>
+</div>
 
           <div className="goodsTable">
             <div className="goodsHeader">
@@ -702,7 +699,17 @@ goods: [
 })}
 </div>
 
+          <div className="addGoodsBottom">
+  <button type="button" onClick={addGoodsRow}>
+    + Добавить строку
+  </button>
+</div>
+
           <Field label="Иная информация о грузе">
+
+
+
+            
             <textarea
               value={form.cargoInfo}
               onChange={(event) => updateField("cargoInfo", event.target.value)}
