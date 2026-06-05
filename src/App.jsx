@@ -168,6 +168,8 @@ const initialForm = {
   docDate: "",
   arrivalDate: "",
   timeRange: "",
+  timeStart: "",
+timeEnd: "",
   vehicleNumber: "",
   driverName: "",
   operator: "ООО «SIMBA»",
@@ -366,13 +368,33 @@ function App() {
               />
             </Field>
 
-            <Field label="Время прихода автомобиля">
-              <input
-                value={form.timeRange}
-                onChange={(event) => updateField("timeRange", event.target.value)}
-                placeholder="14:00-16:00"
-              />
-            </Field>
+<Field label="Время прихода автомобиля">
+  <div className="timeRangeInputs">
+    <input
+      type="time"
+      value={form.timeStart || ""}
+      onChange={(event) => {
+        const newStart = event.target.value;
+        const end = form.timeEnd || "";
+        updateField("timeStart", newStart);
+        updateField("timeRange", end ? `${newStart}-${end}` : newStart);
+      }}
+    />
+
+    <span>—</span>
+
+    <input
+      type="time"
+      value={form.timeEnd || ""}
+      onChange={(event) => {
+        const newEnd = event.target.value;
+        const start = form.timeStart || "";
+        updateField("timeEnd", newEnd);
+        updateField("timeRange", start ? `${start}-${newEnd}` : newEnd);
+      }}
+    />
+  </div>
+</Field>
 
             <Field label="№ автомобиля / контейнера">
               <input
