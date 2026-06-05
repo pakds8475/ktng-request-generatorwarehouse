@@ -2,6 +2,7 @@ import {
   AlignmentType,
   BorderStyle,
   Document,
+  Footer,
   Packer,
   PageOrientation,
   Paragraph,
@@ -337,20 +338,20 @@ function createSignatureTable(data) {
           borderlessCell(
             [
               paragraph("От Хранителя-Оператора:", {
-                size: 24,
-                spacing: { after: 160 },
+                size: 22,
+                spacing: { after: 120 },
               }),
               paragraph("______________________", {
-                size: 24,
+                size: 22,
               }),
               paragraph(safeValue(data.operator), {
-                size: 24,
+                size: 22,
               }),
               paragraph("________________________", {
-                size: 24,
+                size: 22,
               }),
               paragraph("М.П.", {
-                size: 24,
+                size: 22,
               }),
             ],
             {
@@ -361,20 +362,20 @@ function createSignatureTable(data) {
           borderlessCell(
             [
               paragraph("От Поклажедателя-Заказчика:", {
-                size: 24,
+                size: 22,
                 spacing: { after: 40 },
               }),
               paragraph(safeValue(data.signatoryTitle), {
-                size: 24,
+                size: 22,
               }),
               paragraph(safeValue(data.customer), {
-                size: 24,
+                size: 22,
               }),
               paragraph("____________________________", {
-                size: 24,
+                size: 22,
               }),
               paragraph("М.П.", {
-                size: 24,
+                size: 22,
               }),
             ],
             {
@@ -383,6 +384,19 @@ function createSignatureTable(data) {
           ),
         ],
       }),
+    ],
+  });
+}
+
+function createBottomFooter(data) {
+  return new Footer({
+    children: [
+      paragraph(`Иная информация о грузе: ${safeValue(data.cargoInfo)}`, {
+        size: 22,
+        spacing: { after: 180 },
+      }),
+
+      createSignatureTable(data),
     ],
   });
 }
@@ -398,22 +412,25 @@ export async function downloadDocx(data) {
   const customer = safeValue(data.customer);
 
   const doc = new Document({
-    sections: [
-      {
-        properties: {
-          page: {
-            size: {
-              orientation: PageOrientation.LANDSCAPE,
-            },
-            margin: {
-              top: 600,
-              right: 600,
-              bottom: 600,
-              left: 600,
-            },
-          },
+sections: [
+  {
+    properties: {
+      page: {
+        size: {
+          orientation: PageOrientation.LANDSCAPE,
         },
-        children: [
+        margin: {
+          top: 600,
+          right: 600,
+          bottom: 2300,
+          left: 600,
+        },
+      },
+    },
+    footers: {
+      default: createBottomFooter(data),
+    },
+    children: [
           paragraph(`№ от ${formatDateLong(data.docDate)}`, {
             size: 24,
             spacing: { after: 120 },
@@ -446,12 +463,7 @@ export async function downloadDocx(data) {
 
           createGoodsTable(data),
 
-          paragraph(`Иная информация о грузе: ${safeValue(data.cargoInfo)}`, {
-            size: 24,
-            spacing: { before: 180, after: 260 },
-          }),
 
-          createSignatureTable(data),
         ],
       },
     ],
