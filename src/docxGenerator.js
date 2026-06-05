@@ -2,7 +2,6 @@ import {
   AlignmentType,
   BorderStyle,
   Document,
-  Footer,
   Packer,
   PageOrientation,
   Paragraph,
@@ -399,13 +398,7 @@ function createSignatureTable(data) {
   });
 }
 
-function createBottomFooter(data) {
-  return new Footer({
-    children: [
-      createSignatureTable(data),
-    ],
-  });
-}
+
 export async function downloadDocx(data) {
   const title =
     data.applicationType === "acceptance"
@@ -424,19 +417,16 @@ export async function downloadDocx(data) {
             size: {
               orientation: PageOrientation.LANDSCAPE,
             },
-            margin: {
-              top: 600,
-              right: 600,
-              bottom: 3600,
-              left: 600,
-              footer: 2200,
-            },
+margin: {
+  top: 600,
+  right: 600,
+  bottom: 600,
+  left: 600,
+},
           },
         },
 
-        footers: {
-          default: createBottomFooter(data),
-        },
+
 
         children: [
           paragraph(title, {
@@ -464,12 +454,12 @@ export async function downloadDocx(data) {
             spacing: { after: 160 },
           }),
 
-          createGoodsTable(data),
+createGoodsTable(data),
 
-          paragraph(`Иная информация о грузе: ${safeValue(data.cargoInfo)}`, {
-            size: 24,
-            spacing: { before: 180, after: 80 },
-          }),
+paragraph(`Иная информация о грузе: ${safeValue(data.cargoInfo)}`, {
+  size: 24,
+  spacing: { before: 180, after: 180 },
+}),
         ],
       },
     ],
