@@ -323,6 +323,9 @@ const getFilteredCargoItems = (filter) =>
     () => form.goods.filter((item) => item.name || item.weight || item.quantity),
     [form.goods]
   );
+  const previewRows = previewGoods.length
+  ? previewGoods
+  : [{ name: "", weight: "", quantity: "" }];
 
   function updateField(name, value) {
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -744,100 +747,94 @@ goods: [
           ) : null}
         </form>
 
-        <aside className="preview">
-          <div className="paper">
-            <p>
-              № от{" "}
-              {form.docDate
-                ? formatDateLong(form.docDate)
-                : "«__» ________ 2026 г."}
-            </p>
+<aside className="preview">
+  <div className="paper paperLandscape">
+    <h3>{title}</h3>
 
-            <h3>{title}</h3>
+    <p className="center">
+      г. {form.city || "________"}{" "}
+      {form.docDate ? formatDateLong(form.docDate) : "«__» ________ 2026 г."}
+    </p>
 
-            <p className="center">
-              г. {form.city || "________"}{" "}
-              {form.docDate
-                ? formatDateLong(form.docDate)
-                : "«__» ________ 2026 г."}
-            </p>
+    <p>
+      <b>ХРАНИТЕЛЬ-ОПЕРАТОР:</b> {form.operator}
+    </p>
 
-            <p>
-              <b>ХРАНИТЕЛЬ-ОПЕРАТОР :</b> {form.operator}
-            </p>
+    <p>
+      <b>ПОКЛАЖЕДАТЕЛЬ-ЗАКАЗЧИК:</b> {form.customer}
+    </p>
 
-            <p>
-              <b>ПОКЛАЖЕДАТЕЛЬ-ЗАКАЗЧИК:</b> {form.customer}
-            </p>
+    <table>
+      <thead>
+        <tr>
+          <th rowSpan="2">№ п/п</th>
+          <th rowSpan="2">Дата/время прихода а/м</th>
+          <th rowSpan="2">№ а/м, контейнера</th>
+          <th rowSpan="2">ФИО водителя</th>
+          <th colSpan="3">Сведения о грузе</th>
+        </tr>
+        <tr>
+          <th>Наименование</th>
+          <th>Вес (кг)</th>
+          <th>Кол-во, единиц</th>
+        </tr>
+      </thead>
 
-            <table>
-              <thead>
-                <tr>
-                  <th>№</th>
-                  <th>Дата/время</th>
-                  <th>№ а/м</th>
-                  <th>ФИО водителя</th>
-                  <th>Наименование</th>
-                  <th>Вес</th>
-                  <th>Кол-во</th>
-                </tr>
-              </thead>
+      <tbody>
+        {previewRows.map((item, index) => (
+          <tr key={index}>
+            {index === 0 ? (
+              <>
+                <td rowSpan={previewRows.length}>1</td>
+                <td rowSpan={previewRows.length}>
+                  {formatDateDots(form.arrivalDate)} {form.timeRange}
+                </td>
+                <td rowSpan={previewRows.length}>{form.vehicleNumber}</td>
+                <td rowSpan={previewRows.length}>
+                  {form.driverName.replaceAll("\n", " ")}
+                </td>
+              </>
+            ) : null}
 
-              <tbody>
-                {(previewGoods.length
-                  ? previewGoods
-                  : [{ name: "", weight: "", quantity: "" }]
-                ).map((item, index) => (
-                  <tr key={index}>
-                    <td>{index === 0 ? "1" : ""}</td>
+            <td>{item.name}</td>
+            <td>{item.weight}</td>
+            <td>{item.quantity}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
 
-                    <td>
-                      {index === 0
-                        ? `${formatDateDots(form.arrivalDate)} ${form.timeRange}`
-                        : ""}
-                    </td>
+    <p className="cargoInfoPreview">
+      Иная информация о грузе: {form.cargoInfo}
+    </p>
 
-                    <td>{index === 0 ? form.vehicleNumber : ""}</td>
+    <div className="signatures signaturesCentered">
+      <span>
+        От Хранителя-Оператора:
+        <br />
+        ______________________
+        <br />
+        {form.operator}
+        <br />
+        ______________________
+        <br />
+        М.П.
+      </span>
 
-                    <td>
-                      {index === 0 ? form.driverName.replaceAll("\n", " ") : ""}
-                    </td>
-
-                    <td>{item.name}</td>
-                    <td>{item.weight}</td>
-                    <td>{item.quantity}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            <p>Иная информация о грузе: {form.cargoInfo}</p>
-
-            <div className="signatures">
-              <span>
-                От Хранителя-Оператора:
-                <br />
-                ______________________
-                <br />
-                {form.operator}
-                <br />
-                М.П.
-              </span>
-
-              <span>
-                От Поклажедателя-Заказчика:
-                <br />
-                {form.signatoryTitle}
-                <br />
-                {form.customer}
-                <br />
-                ___________________
-                <br />
-                М.П.
-              </span>
-            </div>
-          </div>
-        </aside>
+      <span>
+        От Поклажедателя-Заказчика:
+        <br />
+        {form.signatoryTitle}
+        <br />
+        {form.customer}
+        <br />
+        ______________________
+        <br />
+        М.П.
+      </span>
+    </div>
+  </div>
+</aside>
       </section>
     </main>
   );
