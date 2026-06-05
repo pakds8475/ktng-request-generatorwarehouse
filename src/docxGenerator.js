@@ -458,7 +458,7 @@ createGoodsTable(data),
 
 paragraph(`Иная информация о грузе: ${safeValue(data.cargoInfo)}`, {
   size: 24,
-  spacing: { before: 220, after: 1200 },
+  spacing: { before: 220, after: 2000 },
 }),
 
 createSignatureTable(data),
