@@ -717,3 +717,19 @@ textarea:focus {
 .addGoodsBottom button:hover {
   background: #3154d4;
 }
+/* FINAL CITY BUTTONS ALIGNMENT */
+
+.cityButtons {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+
+.cityButton {
+  width: 100%;
+  padding: 10px 8px;
+  font-size: 13px;
+  text-align: center;
+  white-space: nowrap;
+}
