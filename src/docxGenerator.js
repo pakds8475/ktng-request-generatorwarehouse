@@ -402,8 +402,8 @@ function createSignatureTable(data) {
 export async function downloadDocx(data) {
   const title =
     data.applicationType === "acceptance"
-      ? "Заявка на приемку"
-      : "Заявка на выдачу товара";
+      ? "Заявка на приемку товара №"
+      : "Заявка на выдачу товара №";
 
   const city = safeValue(data.city) || "________";
   const operator = safeValue(data.operator);
