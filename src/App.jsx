@@ -223,7 +223,7 @@ function Field({ label, children, hint }) {
 function App() {
   const [form, setForm] = useState(initialForm);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [cargoFilter, setCargoFilter] = useState("all");
+  const [cargoFilter, setCargoFilter] = useState("new");
 
   const filteredCargoItems = sortedCargoItems.filter((cargo) => {
     if (cargoFilter === "all") {
