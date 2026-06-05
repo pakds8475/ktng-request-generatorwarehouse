@@ -18,45 +18,60 @@ function safeValue(value) {
   return value ?? "";
 }
 
+function parseDate(value) {
+  if (!value) return null;
+
+  const parts = String(value).split("-");
+  if (parts.length !== 3) return null;
+
+  const year = Number(parts[0]);
+  const month = Number(parts[1]);
+  const day = Number(parts[2]);
+
+  if (!year || !month || !day) return null;
+
+  return {
+    year,
+    month,
+    day,
+  };
+}
+
 export function formatDateDots(value) {
-  if (!value) return "";
+  const parsed = parseDate(value);
 
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
+  if (!parsed) return "";
 
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
+  const day = String(parsed.day).padStart(2, "0");
+  const month = String(parsed.month).padStart(2, "0");
 
-  return `${day}.${month}.${year}`;
+  return `${day}.${month}.${parsed.year}`;
 }
 
 export function formatDateLong(value) {
-  if (!value) return "«__» ________ 2026 г.";
+  const parsed = parseDate(value);
 
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "«__» ________ 2026 г.";
+  if (!parsed) return "«__» ________ 2026 г.";
 
   const months = [
-    "января",
-    "февраля",
-    "марта",
-    "апреля",
-    "мая",
-    "июня",
-    "июля",
-    "августа",
-    "сентября",
-    "октября",
-    "ноября",
-    "декабря",
+    "Января",
+    "Февраля",
+    "Марта",
+    "Апреля",
+    "Мая",
+    "Июня",
+    "Июля",
+    "Августа",
+    "Сентября",
+    "Октября",
+    "Ноября",
+    "Декабря",
   ];
 
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = months[date.getMonth()];
-  const year = date.getFullYear();
+  const day = String(parsed.day).padStart(2, "0");
+  const monthName = months[parsed.month - 1];
 
-  return `«${day}» ${month} ${year} г.`;
+  return `«${day}» ${monthName} ${parsed.year} г.`;
 }
 
 function paragraph(text, options = {}) {
@@ -68,7 +83,25 @@ function paragraph(text, options = {}) {
         text: safeValue(text),
         bold: options.bold ?? false,
         size: options.size ?? 24,
-        font: options.font ?? "Times New Roman",
+        font: "Times New Roman",
+      }),
+    ],
+  });
+}
+
+function tableText(text, options = {}) {
+  return new Paragraph({
+    alignment: options.alignment ?? AlignmentType.CENTER,
+    spacing: {
+      before: 0,
+      after: 0,
+    },
+    children: [
+      new TextRun({
+        text: safeValue(text),
+        bold: options.bold ?? false,
+        size: options.size ?? 18,
+        font: "Times New Roman",
       }),
     ],
   });
@@ -78,8 +111,12 @@ function cell(text, options = {}) {
   return new TableCell({
     verticalAlign: VerticalAlign.CENTER,
     verticalMerge: options.verticalMerge,
+    columnSpan: options.columnSpan,
     width: options.width
-      ? { size: options.width, type: WidthType.DXA }
+      ? {
+          size: options.width,
+          type: WidthType.DXA,
+        }
       : undefined,
     margins: {
       top: 70,
@@ -94,29 +131,56 @@ function cell(text, options = {}) {
       right: { style: BorderStyle.SINGLE, size: 4, color: "000000" },
     },
     children: [
-      new Paragraph({
+      tableText(text, {
         alignment: options.alignment ?? AlignmentType.CENTER,
-        children: [
-          new TextRun({
-            text: text ?? "",
-            bold: options.bold ?? false,
-            size: options.size ?? 20,
-            font: "Times New Roman",
-          }),
-        ],
+        bold: options.bold ?? false,
+        size: options.size ?? 18,
       }),
     ],
   });
 }
 
-function goodsTableRows(data) {
+function borderlessCell(children, options = {}) {
+  return new TableCell({
+    width: options.width
+      ? {
+          size: options.width,
+          type: WidthType.PERCENTAGE,
+        }
+      : undefined,
+    margins: {
+      top: 80,
+      bottom: 80,
+      left: 80,
+      right: 80,
+    },
+    borders: {
+      top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+      bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+      left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+      right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+    },
+    children,
+  });
+}
+
+function buildDateTime(data) {
+  const date = formatDateDots(data.arrivalDate);
+  const time = safeValue(data.timeRange);
+
+  return [date, time].filter(Boolean).join(" ");
+}
+
+function createGoodsRows(data) {
   const goods =
     data.goods?.filter((item) => item.name || item.weight || item.quantity) ?? [];
 
   const normalizedGoods =
     goods.length > 0 ? goods : [{ name: "", weight: "", quantity: "" }];
 
-  const dateTime = `${formatDateDots(data.arrivalDate)}${data.timeRange ? ` ${data.timeRange}` : ""}`.trim();
+  const dateTime = buildDateTime(data);
+  const vehicleNumber = safeValue(data.vehicleNumber);
+  const driverName = safeValue(data.driverName).replaceAll("\n", " ");
 
   return normalizedGoods.map((item, index) => {
     const isFirst = index === 0;
@@ -124,8 +188,7 @@ function goodsTableRows(data) {
     return new TableRow({
       children: [
         cell(isFirst ? "1" : "", {
-          width: 700,
-          alignment: AlignmentType.CENTER,
+          width: 600,
           verticalMerge: isFirst
             ? VerticalMergeType.RESTART
             : VerticalMergeType.CONTINUE,
@@ -133,44 +196,194 @@ function goodsTableRows(data) {
 
         cell(isFirst ? dateTime : "", {
           width: 1800,
-          alignment: AlignmentType.CENTER,
           verticalMerge: isFirst
             ? VerticalMergeType.RESTART
             : VerticalMergeType.CONTINUE,
         }),
 
-        cell(isFirst ? (data.vehicleNumber || "") : "", {
+        cell(isFirst ? vehicleNumber : "", {
           width: 1300,
-          alignment: AlignmentType.CENTER,
           verticalMerge: isFirst
             ? VerticalMergeType.RESTART
             : VerticalMergeType.CONTINUE,
         }),
 
-        cell(isFirst ? (data.driverName || "").replaceAll("\n", " ") : "", {
-          width: 2100,
-          alignment: AlignmentType.CENTER,
+        cell(isFirst ? driverName : "", {
+          width: 2300,
           verticalMerge: isFirst
             ? VerticalMergeType.RESTART
             : VerticalMergeType.CONTINUE,
         }),
 
-        cell(item.name || "", {
-          width: 4300,
+        cell(safeValue(item.name), {
+          width: 5200,
           alignment: AlignmentType.LEFT,
         }),
 
-        cell(item.weight || "", {
+        cell(safeValue(item.weight), {
           width: 900,
-          alignment: AlignmentType.CENTER,
         }),
 
-        cell(item.quantity || "", {
-          width: 900,
-          alignment: AlignmentType.CENTER,
+        cell(safeValue(item.quantity), {
+          width: 1000,
         }),
       ],
     });
+  });
+}
+
+function createGoodsTable(data) {
+  return new Table({
+    width: {
+      size: 100,
+      type: WidthType.PERCENTAGE,
+    },
+    rows: [
+      new TableRow({
+        children: [
+          cell("№\nп/п", {
+            width: 600,
+            bold: true,
+            verticalMerge: VerticalMergeType.RESTART,
+          }),
+
+          cell("Дата/время\nприхода а/м", {
+            width: 1800,
+            bold: true,
+            verticalMerge: VerticalMergeType.RESTART,
+          }),
+
+          cell("№ а/м,\nконтейнера", {
+            width: 1300,
+            bold: true,
+            verticalMerge: VerticalMergeType.RESTART,
+          }),
+
+          cell("ФИО\nводителя", {
+            width: 2300,
+            bold: true,
+            verticalMerge: VerticalMergeType.RESTART,
+          }),
+
+          cell("Сведения о грузе", {
+            width: 7100,
+            bold: true,
+            columnSpan: 3,
+          }),
+        ],
+      }),
+
+      new TableRow({
+        children: [
+          cell("", {
+            width: 600,
+            verticalMerge: VerticalMergeType.CONTINUE,
+          }),
+
+          cell("", {
+            width: 1800,
+            verticalMerge: VerticalMergeType.CONTINUE,
+          }),
+
+          cell("", {
+            width: 1300,
+            verticalMerge: VerticalMergeType.CONTINUE,
+          }),
+
+          cell("", {
+            width: 2300,
+            verticalMerge: VerticalMergeType.CONTINUE,
+          }),
+
+          cell("Наименование", {
+            width: 5200,
+            bold: true,
+          }),
+
+          cell("Вес (кг)", {
+            width: 900,
+            bold: true,
+          }),
+
+          cell("Кол-во,\nединиц", {
+            width: 1000,
+            bold: true,
+          }),
+        ],
+      }),
+
+      ...createGoodsRows(data),
+    ],
+  });
+}
+
+function createSignatureTable(data) {
+  return new Table({
+    width: {
+      size: 100,
+      type: WidthType.PERCENTAGE,
+    },
+    borders: {
+      top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+      bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+      left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+      right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+      insideHorizontal: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+      insideVertical: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+    },
+    rows: [
+      new TableRow({
+        children: [
+          borderlessCell(
+            [
+              paragraph("От Хранителя-Оператора:", {
+                size: 24,
+                spacing: { after: 160 },
+              }),
+              paragraph("______________________", {
+                size: 24,
+              }),
+              paragraph(safeValue(data.operator), {
+                size: 24,
+              }),
+              paragraph("________________________", {
+                size: 24,
+              }),
+              paragraph("М.П.", {
+                size: 24,
+              }),
+            ],
+            {
+              width: 50,
+            }
+          ),
+
+          borderlessCell(
+            [
+              paragraph("От Поклажедателя-Заказчика:", {
+                size: 24,
+                spacing: { after: 40 },
+              }),
+              paragraph(safeValue(data.signatoryTitle), {
+                size: 24,
+              }),
+              paragraph(safeValue(data.customer), {
+                size: 24,
+              }),
+              paragraph("____________________________", {
+                size: 24,
+              }),
+              paragraph("М.П.", {
+                size: 24,
+              }),
+            ],
+            {
+              width: 50,
+            }
+          ),
+        ],
+      }),
+    ],
   });
 }
 
@@ -180,172 +393,65 @@ export async function downloadDocx(data) {
       ? "Заявка на приемку"
       : "Заявка на выдачу товара";
 
+  const city = safeValue(data.city) || "________";
+  const operator = safeValue(data.operator);
+  const customer = safeValue(data.customer);
+
   const doc = new Document({
     sections: [
       {
         properties: {
           page: {
-            margin: {
-              top: 700,
-              right: 700,
-              bottom: 700,
-              left: 700,
-            },
             size: {
               orientation: PageOrientation.LANDSCAPE,
+            },
+            margin: {
+              top: 600,
+              right: 600,
+              bottom: 600,
+              left: 600,
             },
           },
         },
         children: [
           paragraph(`№ от ${formatDateLong(data.docDate)}`, {
             size: 24,
-            spacing: { after: 150 },
+            spacing: { after: 120 },
           }),
 
           paragraph(title, {
             bold: true,
             size: 28,
             alignment: AlignmentType.CENTER,
-            spacing: { after: 150 },
+            spacing: { after: 120 },
           }),
 
-          paragraph(
-            `г. ${safeValue(data.city) || "________"} ${formatDateLong(data.docDate)}`,
-            {
-              size: 24,
-              alignment: AlignmentType.CENTER,
-              spacing: { after: 180 },
-            }
-          ),
-
-          paragraph(`ХРАНИТЕЛЬ-ОПЕРАТОР: ${safeValue(data.operator)}`, {
+          paragraph(`г. ${city} ${formatDateLong(data.docDate)}`, {
             size: 24,
-            spacing: { after: 100 },
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 160 },
           }),
 
-          paragraph(`ПОКЛАЖЕДАТЕЛЬ-ЗАКАЗЧИК: ${safeValue(data.customer)}`, {
+          paragraph(`ХРАНИТЕЛЬ-ОПЕРАТОР: ${operator}`, {
+            bold: true,
             size: 24,
-            spacing: { after: 180 },
+            spacing: { after: 80 },
           }),
 
-          new Table({
-            width: {
-              size: 100,
-              type: WidthType.PERCENTAGE,
-            },
-            rows: [
-              new TableRow({
-                children: [
-                  cell("№", {
-                    width: 700,
-                    bold: true,
-                  }),
-                  cell("Дата/время", {
-                    width: 1800,
-                    bold: true,
-                  }),
-                  cell("№ а/м", {
-                    width: 1300,
-                    bold: true,
-                  }),
-                  cell("ФИО водителя", {
-                    width: 2100,
-                    bold: true,
-                  }),
-                  cell("Наименование", {
-                    width: 4300,
-                    bold: true,
-                  }),
-                  cell("Вес", {
-                    width: 900,
-                    bold: true,
-                  }),
-                  cell("Кол-во", {
-                    width: 900,
-                    bold: true,
-                  }),
-                ],
-              }),
-              ...goodsTableRows(data),
-            ],
+          paragraph(`ПОКЛАЖЕДАТЕЛЬ-ЗАКАЗЧИК: ${customer}`, {
+            bold: true,
+            size: 24,
+            spacing: { after: 160 },
           }),
+
+          createGoodsTable(data),
 
           paragraph(`Иная информация о грузе: ${safeValue(data.cargoInfo)}`, {
             size: 24,
             spacing: { before: 180, after: 260 },
           }),
 
-          new Table({
-            width: {
-              size: 100,
-              type: WidthType.PERCENTAGE,
-            },
-            borders: {
-              top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-              bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-              left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-              right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-              insideHorizontal: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-              insideVertical: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-            },
-            rows: [
-              new TableRow({
-                children: [
-                  new TableCell({
-                    borders: {
-                      top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-                      bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-                      left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-                      right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-                    },
-                    width: { size: 50, type: WidthType.PERCENTAGE },
-                    children: [
-                      paragraph("От Хранителя-Оператора:", {
-                        size: 24,
-                        spacing: { after: 120 },
-                      }),
-                      paragraph("______________________", {
-                        size: 24,
-                      }),
-                      paragraph(safeValue(data.operator), {
-                        size: 24,
-                      }),
-                      paragraph("М.П.", {
-                        size: 24,
-                      }),
-                    ],
-                  }),
-                  new TableCell({
-                    borders: {
-                      top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-                      bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-                      left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-                      right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-                    },
-                    width: { size: 50, type: WidthType.PERCENTAGE },
-                    children: [
-                      paragraph("От Поклажедателя-Заказчика:", {
-                        size: 24,
-                        spacing: { after: 40 },
-                      }),
-                      paragraph(safeValue(data.signatoryTitle), {
-                        size: 24,
-                      }),
-                      paragraph(safeValue(data.customer), {
-                        size: 24,
-                      }),
-                      paragraph("______________________", {
-                        size: 24,
-                      }),
-                      paragraph("М.П.", {
-                        size: 24,
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-            ],
-          }),
+          createSignatureTable(data),
         ],
       },
     ],
@@ -354,9 +460,13 @@ export async function downloadDocx(data) {
   const blob = await Packer.toBlob(doc);
   const url = URL.createObjectURL(blob);
 
+  const fileNameCity = city.replaceAll(" ", "_");
+  const fileNameDate = formatDateDots(data.docDate).replaceAll(".", "-");
+  const fileName = `${title}_${fileNameCity}_${fileNameDate || "без_даты"}.docx`;
+
   const link = document.createElement("a");
   link.href = url;
-  link.download = `${title}_${safeValue(data.city) || "Без_города"}.docx`;
+  link.download = fileName;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
