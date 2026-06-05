@@ -501,3 +501,14 @@ textarea:focus {
   border-color: #14213d;
   box-shadow: 0 8px 20px rgba(20, 33, 61, 0.22);
 }
+.timeRangeInputs {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 8px;
+  align-items: center;
+}
+
+.timeRangeInputs span {
+  color: #667085;
+  font-weight: 800;
+}
