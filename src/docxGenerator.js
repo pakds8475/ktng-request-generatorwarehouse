@@ -406,7 +406,6 @@ function createBottomFooter(data) {
     ],
   });
 }
-
 export async function downloadDocx(data) {
   const title =
     data.applicationType === "acceptance"
@@ -418,27 +417,28 @@ export async function downloadDocx(data) {
   const customer = safeValue(data.customer);
 
   const doc = new Document({
-sections: [
-  {
-    properties: {
-      page: {
-        size: {
-          orientation: PageOrientation.LANDSCAPE,
+    sections: [
+      {
+        properties: {
+          page: {
+            size: {
+              orientation: PageOrientation.LANDSCAPE,
+            },
+            margin: {
+              top: 600,
+              right: 600,
+              bottom: 3600,
+              left: 600,
+              footer: 2200,
+            },
+          },
         },
-margin: {
-  top: 600,
-  right: 600,
-  bottom: 3600,
-  left: 600,
-  footer: 2200,
-},
-      },
-    },
-    footers: {
-      default: createBottomFooter(data),
-    },
-    children: [
 
+        footers: {
+          default: createBottomFooter(data),
+        },
+
+        children: [
           paragraph(title, {
             bold: true,
             size: 28,
@@ -446,13 +446,11 @@ margin: {
             spacing: { after: 120 },
           }),
 
-paragraph(`г. ${city} ${formatDateLong(data.docDate)}`, {
-  size: 24,
-  alignment: AlignmentType.CENTER,
-  spacing: { after: 520 },
-}),
-
-paragraph(`ХРАНИТЕЛЬ-ОПЕРАТОР: ${operator}`, {
+          paragraph(`г. ${city} ${formatDateLong(data.docDate)}`, {
+            size: 24,
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 520 },
+          }),
 
           paragraph(`ХРАНИТЕЛЬ-ОПЕРАТОР: ${operator}`, {
             bold: true,
@@ -467,12 +465,11 @@ paragraph(`ХРАНИТЕЛЬ-ОПЕРАТОР: ${operator}`, {
           }),
 
           createGoodsTable(data),
-      paragraph(`Иная информация о грузе: ${safeValue(data.cargoInfo)}`, {
-  size: 24,
-  spacing: { before: 180, after: 80 },
-}),
 
-
+          paragraph(`Иная информация о грузе: ${safeValue(data.cargoInfo)}`, {
+            size: 24,
+            spacing: { before: 180, after: 80 },
+          }),
         ],
       },
     ],
