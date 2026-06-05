@@ -308,8 +308,8 @@ const getFilteredCargoItems = (filter) =>
 
   const title =
     form.applicationType === "issue"
-      ? "Заявка на выдачу товара"
-      : "Заявка на приемку";
+      ? "Заявка на выдачу товара №"
+      : "Заявка на приемку №";
 
   const hasRequiredFields =
     form.city &&
