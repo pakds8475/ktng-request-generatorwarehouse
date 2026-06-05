@@ -267,7 +267,7 @@ timeEnd: "",
   customer: "ИП OOO «KTNG GLOBAL TAS»",
   signatoryTitle: "Специалист по Логистике",
   cargoInfo: "",
-  goods: [{ name: "", weight: "", quantity: "" }],
+goods: [{ name: "", weight: "", quantity: "", cargoFilter: "new" }],
 };
 
 const emptyForm = {
@@ -287,17 +287,14 @@ function Field({ label, children, hint }) {
 function App() {
   const [form, setForm] = useState(initialForm);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [cargoFilter, setCargoFilter] = useState("new");
-
-  const filteredCargoItems = sortedCargoItems.filter((cargo) => {
-    if (cargoFilter === "all") {
+const getFilteredCargoItems = (filter) =>
+  sortedCargoItems.filter((cargo) => {
+    if (filter === "all") {
       return true;
     }
 
-    return getCargoCondition(cargo) === cargoFilter;
+    return getCargoCondition(cargo) === filter;
   });
-
-  const groupedCargoItems = groupCargoItems(filteredCargoItems);
 
   const title =
     form.applicationType === "issue"
@@ -349,10 +346,24 @@ function selectCity(city) {
     }));
   }
 
+  function updateGoodsFilter(index, filter) {
+  setForm((prev) => ({
+    ...prev,
+    goods: prev.goods.map((item, itemIndex) =>
+      itemIndex === index
+        ? { ...item, cargoFilter: filter, name: "" }
+        : item
+    ),
+  }));
+}
+
   function addGoodsRow() {
     setForm((prev) => ({
       ...prev,
-      goods: [...prev.goods, { name: "", weight: "", quantity: "" }],
+goods: [
+  ...prev.goods,
+  { name: "", weight: "", quantity: "", cargoFilter: "new" },
+],
     }));
   }
 
@@ -606,83 +617,90 @@ function selectCity(city) {
               <span></span>
             </div>
 
-            <div className="cargoFilters">
-   
+{form.goods.map((item, index) => {
+  const rowCargoFilter = item.cargoFilter || "new";
+  const rowFilteredCargoItems = getFilteredCargoItems(rowCargoFilter);
+  const rowGroupedCargoItems = groupCargoItems(rowFilteredCargoItems);
 
-              <button
-                type="button"
-                className={cargoFilter === "new" ? "activeFilter" : ""}
-                onClick={() => setCargoFilter("new")}
-              >
-                Новый
-              </button>
+  return (
+    <div className="goodsRow" key={index}>
+      <div className="goodsNameCell">
+        <div className="cargoFilters rowCargoFilters">
+          <button
+            type="button"
+            className={rowCargoFilter === "new" ? "activeFilter" : ""}
+            onClick={() => updateGoodsFilter(index, "new")}
+          >
+            Новый
+          </button>
 
-              <button
-                type="button"
-                className={cargoFilter === "used" ? "activeFilter" : ""}
-                onClick={() => setCargoFilter("used")}
-              >
-                БУ
-              </button>
+          <button
+            type="button"
+            className={rowCargoFilter === "used" ? "activeFilter" : ""}
+            onClick={() => updateGoodsFilter(index, "used")}
+          >
+            БУ
+          </button>
 
-              <button
-                type="button"
-                className={cargoFilter === "defect" ? "activeFilter" : ""}
-                onClick={() => setCargoFilter("defect")}
-              >
-                Брак
-              </button>
-                         <button
-                type="button"
-                className={cargoFilter === "all" ? "activeFilter" : ""}
-                onClick={() => setCargoFilter("all")}
-              >
-                Все
-              </button>
-            </div>
+          <button
+            type="button"
+            className={rowCargoFilter === "defect" ? "activeFilter" : ""}
+            onClick={() => updateGoodsFilter(index, "defect")}
+          >
+            Брак
+          </button>
 
-            {form.goods.map((item, index) => (
-              <div className="goodsRow" key={index}>
-                <select
-  value={filteredCargoItems.includes(item.name) ? item.name : ""}
-  onChange={(event) => updateGoods(index, "name", event.target.value)}
->
-  <option value="">Выберите груз</option>
+          <button
+            type="button"
+            className={rowCargoFilter === "all" ? "activeFilter" : ""}
+            onClick={() => updateGoodsFilter(index, "all")}
+          >
+            Все
+          </button>
+        </div>
 
-  {groupedCargoItems.map((group) => (
-    <optgroup key={group.groupName} label={group.groupName}>
-      {group.items.map((cargo) => (
-        <option key={cargo} value={cargo}>
-          {cargo}
-        </option>
-      ))}
-    </optgroup>
-  ))}
-</select>
+        <select
+          value={rowFilteredCargoItems.includes(item.name) ? item.name : ""}
+          onChange={(event) => updateGoods(index, "name", event.target.value)}
+        >
+          <option value="">Выберите груз</option>
 
-                <input
-                  value={item.weight}
-                  onChange={(event) => updateGoods(index, "weight", event.target.value)}
-                  placeholder="Вес"
-                />
+          {rowGroupedCargoItems.map((group) => (
+            <optgroup key={group.groupName} label={group.groupName}>
+              {group.items.map((cargo) => (
+                <option key={cargo} value={cargo}>
+                  {cargo}
+                </option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
+      </div>
 
-                <input
-                  value={item.quantity}
-                  onChange={(event) => updateGoods(index, "quantity", event.target.value)}
-                  placeholder="Кол-во"
-                />
+      <input
+        value={item.weight}
+        onChange={(event) => updateGoods(index, "weight", event.target.value)}
+        placeholder="Вес"
+      />
 
-                <button
-                  type="button"
-                  className="iconButton"
-                  onClick={() => removeGoodsRow(index)}
-                  title="Удалить строку"
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
+      <input
+        value={item.quantity}
+        onChange={(event) => updateGoods(index, "quantity", event.target.value)}
+        placeholder="Кол-во"
+      />
+
+      <button
+        type="button"
+        className="iconButton"
+        onClick={() => removeGoodsRow(index)}
+        title="Удалить строку"
+      >
+        ×
+      </button>
+    </div>
+  );
+})}
+
 
           <Field label="Иная информация о грузе">
             <textarea
