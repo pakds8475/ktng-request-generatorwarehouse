@@ -733,3 +733,37 @@ textarea:focus {
   text-align: center;
   white-space: nowrap;
 }
+.paperLandscape {
+  min-height: 520px;
+  width: 100%;
+  padding: 26px;
+}
+
+.paperLandscape h3 {
+  margin-bottom: 10px;
+}
+
+.paperLandscape table {
+  font-size: 10px;
+}
+
+.paperLandscape th,
+.paperLandscape td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.paperLandscape td:nth-child(5),
+.paperLandscape td:first-child + td + td + td + td {
+  text-align: center;
+}
+
+.cargoInfoPreview {
+  margin-top: 14px;
+  margin-bottom: 18px;
+}
+
+.signaturesCentered {
+  text-align: center;
+  align-items: start;
+}
