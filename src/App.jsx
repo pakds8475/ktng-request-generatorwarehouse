@@ -12,17 +12,16 @@ const getTodayDate = () => {
 };
 
 const allowedCities = [
-    "Ташкент",
+  "Ташкент",
   "Андижан",
   "Бухара",
   "Коканд",
   "Наманган",
   "Самарканд",
-
   "Фергана",
 ];
 
-const sortedCities = [...allowedCities].sort((a, b) => a.localeCompare(b, "ru"));
+const sortedCities = allowedCities;
 const cityOperators = {
   "Ташкент": "ООО «RUZ TRADER»",
   "Андижан": "ООО «SIMBA»",
