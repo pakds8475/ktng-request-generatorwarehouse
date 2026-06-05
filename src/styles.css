@@ -552,3 +552,17 @@ textarea:focus {
   color: #ffffff;
   border-color: #14213d;
 }
+.goodsNameCell {
+  display: grid;
+  gap: 8px;
+}
+
+.rowCargoFilters {
+  margin: 0;
+  gap: 6px;
+}
+
+.rowCargoFilters button {
+  padding: 6px 10px;
+  font-size: 12px;
+}
