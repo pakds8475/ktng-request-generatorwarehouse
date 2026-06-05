@@ -3,6 +3,7 @@ import {
   BorderStyle,
   Document,
   Packer,
+  PageOrientation,
   Paragraph,
   Table,
   TableCell,
@@ -13,230 +14,328 @@ import {
   WidthType,
 } from "docx";
 
-const MONTHS_RU = [
-  "Января",
-  "Февраля",
-  "Марта",
-  "Апреля",
-  "Мая",
-  "Июня",
-  "Июля",
-  "Августа",
-  "Сентября",
-  "Октября",
-  "Ноября",
-  "Декабря",
-];
-
-const noBorder = {
-  top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-  bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-  left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-  right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-};
-
-const tableBorders = {
-  top: { style: BorderStyle.SINGLE, size: 8, color: "000000" },
-  bottom: { style: BorderStyle.SINGLE, size: 8, color: "000000" },
-  left: { style: BorderStyle.SINGLE, size: 8, color: "000000" },
-  right: { style: BorderStyle.SINGLE, size: 8, color: "000000" },
-  insideHorizontal: { style: BorderStyle.SINGLE, size: 8, color: "000000" },
-  insideVertical: { style: BorderStyle.SINGLE, size: 8, color: "000000" },
-};
-
-function parseDate(dateString) {
-  const [year, month, day] = dateString.split("-").map(Number);
-  return new Date(year, month - 1, day);
+function safeValue(value) {
+  return value ?? "";
 }
 
-export function formatDateDots(dateString) {
-  const date = parseDate(dateString);
+export function formatDateDots(value) {
+  if (!value) return "";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+
   const day = String(date.getDate()).padStart(2, "0");
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const year = date.getFullYear();
+
   return `${day}.${month}.${year}`;
 }
 
-export function formatDateLong(dateString) {
-  const date = parseDate(dateString);
+export function formatDateLong(value) {
+  if (!value) return "«__» ________ 2026 г.";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "«__» ________ 2026 г.";
+
+  const months = [
+    "января",
+    "февраля",
+    "марта",
+    "апреля",
+    "мая",
+    "июня",
+    "июля",
+    "августа",
+    "сентября",
+    "октября",
+    "ноября",
+    "декабря",
+  ];
+
   const day = String(date.getDate()).padStart(2, "0");
-  const month = MONTHS_RU[date.getMonth()];
+  const month = months[date.getMonth()];
   const year = date.getFullYear();
+
   return `«${day}» ${month} ${year} г.`;
 }
 
-function run(text, options = {}) {
-  return new TextRun({
-    text: String(text ?? ""),
-    font: "Times New Roman",
-    size: options.size ?? 24,
-    bold: options.bold ?? false,
-    italics: options.italics ?? false,
-  });
-}
-
 function paragraph(text, options = {}) {
-  const lines = String(text ?? "").split("\n");
-  const children = [];
-
-  lines.forEach((line, index) => {
-    if (index > 0) {
-      children.push(new TextRun({ break: 1 }));
-    }
-    children.push(run(line, options));
-  });
-
   return new Paragraph({
-    children,
     alignment: options.alignment ?? AlignmentType.LEFT,
-    spacing: options.spacing ?? { after: 80 },
-  });
-}
-
-function cell(text, options = {}) {
-  const align = options.align ?? AlignmentType.CENTER;
-  return new TableCell({
-    width: options.width ? { size: options.width, type: WidthType.DXA } : undefined,
-    columnSpan: options.columnSpan,
-    verticalMerge: options.verticalMerge,
-    verticalAlign: options.verticalAlign ?? VerticalAlign.CENTER,
-    margins: {
-      top: 80,
-      bottom: 80,
-      left: 80,
-      right: 80,
-    },
+    spacing: options.spacing,
     children: [
-      paragraph(text, {
-        alignment: align,
-        size: options.size ?? 20,
+      new TextRun({
+        text: safeValue(text),
         bold: options.bold ?? false,
-        spacing: { after: 0 },
+        size: options.size ?? 24,
+        font: options.font ?? "Times New Roman",
       }),
     ],
   });
 }
 
-function signatureCell(text) {
+function cell(text, options = {}) {
   return new TableCell({
-    borders: noBorder,
-    margins: { top: 120, bottom: 120, left: 0, right: 0 },
-    children: text.split("\n").map((line) =>
-      paragraph(line, {
-        spacing: { after: 60 },
-        size: 22,
-      })
-    ),
-  });
-}
-
-function createCargoTable(data) {
-  const goods = data.goods.filter((item) => item.name || item.weight || item.quantity);
-  const safeGoods = goods.length ? goods : [{ name: "", weight: "", quantity: "" }];
-  const dateTime = `${formatDateDots(data.arrivalDate)}\n${data.timeRange}`;
-
-  const rows = [
-    new TableRow({
-      tableHeader: true,
-      children: [
-        cell("№\nп/п", { width: 700, verticalMerge: VerticalMergeType.RESTART, bold: true }),
-        cell("Дата/время\nприхода а/м", { width: 1700, verticalMerge: VerticalMergeType.RESTART, bold: true }),
-        cell("№ а/м,\nконтейнера", { width: 1600, verticalMerge: VerticalMergeType.RESTART, bold: true }),
-        cell("ФИО водителя", { width: 1900, verticalMerge: VerticalMergeType.RESTART, bold: true }),
-        cell("Сведения о грузе", { columnSpan: 3, bold: true }),
-      ],
-    }),
-    new TableRow({
-      tableHeader: true,
-      children: [
-        cell("", { verticalMerge: VerticalMergeType.CONTINUE }),
-        cell("", { verticalMerge: VerticalMergeType.CONTINUE }),
-        cell("", { verticalMerge: VerticalMergeType.CONTINUE }),
-        cell("", { verticalMerge: VerticalMergeType.CONTINUE }),
-        cell("Наименование", { width: 3100, bold: true }),
-        cell("Вес (кг)", { width: 900, bold: true }),
-        cell("Кол-во,\nединиц", { width: 1100, bold: true }),
-      ],
-    }),
-  ];
-
-  safeGoods.forEach((item, index) => {
-    const isFirst = index === 0;
-    rows.push(
-      new TableRow({
+    verticalAlign: VerticalAlign.CENTER,
+    verticalMerge: options.verticalMerge,
+    width: options.width
+      ? { size: options.width, type: WidthType.DXA }
+      : undefined,
+    margins: {
+      top: 70,
+      bottom: 70,
+      left: 70,
+      right: 70,
+    },
+    borders: {
+      top: { style: BorderStyle.SINGLE, size: 4, color: "000000" },
+      bottom: { style: BorderStyle.SINGLE, size: 4, color: "000000" },
+      left: { style: BorderStyle.SINGLE, size: 4, color: "000000" },
+      right: { style: BorderStyle.SINGLE, size: 4, color: "000000" },
+    },
+    children: [
+      new Paragraph({
+        alignment: options.alignment ?? AlignmentType.CENTER,
         children: [
-          cell(isFirst ? "1" : "", {
-            verticalMerge: isFirst ? VerticalMergeType.RESTART : VerticalMergeType.CONTINUE,
-            width: 700,
+          new TextRun({
+            text: safeValue(text),
+            bold: options.bold ?? false,
+            size: options.size ?? 20,
+            font: "Times New Roman",
           }),
-          cell(isFirst ? dateTime : "", {
-            verticalMerge: isFirst ? VerticalMergeType.RESTART : VerticalMergeType.CONTINUE,
-            width: 1700,
-          }),
-          cell(isFirst ? data.vehicleNumber : "", {
-            verticalMerge: isFirst ? VerticalMergeType.RESTART : VerticalMergeType.CONTINUE,
-            width: 1600,
-          }),
-          cell(isFirst ? data.driverName : "", {
-            verticalMerge: isFirst ? VerticalMergeType.RESTART : VerticalMergeType.CONTINUE,
-            width: 1900,
-          }),
-          cell(item.name, { align: AlignmentType.LEFT, width: 3100 }),
-          cell(item.weight, { width: 900 }),
-          cell(item.quantity, { width: 1100 }),
         ],
-      })
-    );
-  });
-
-  return new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
-    borders: tableBorders,
-    rows,
+      }),
+    ],
   });
 }
 
-export function buildDocx(data) {
-  const title = data.applicationType === "issue" ? "Заявка на выдачу товара" : "Заявка на приемку";
-  const longDate = formatDateLong(data.docDate);
+function goodsTableRows(data) {
+  const goods =
+    data.goods?.filter((item) => item.name || item.weight || item.quantity) ?? [];
+
+  const normalizedGoods =
+    goods.length > 0 ? goods : [{ name: "", weight: "", quantity: "" }];
+
+  const dateTime = `${formatDateDots(data.arrivalDate)}${data.timeRange ? ` ${data.timeRange}` : ""}`.trim();
+
+  return normalizedGoods.map((item, index) => {
+    const isFirst = index === 0;
+
+    return new TableRow({
+      children: [
+        cell(isFirst ? "1" : "", {
+          width: 700,
+          alignment: AlignmentType.CENTER,
+          verticalMerge: isFirst
+            ? VerticalMergeType.RESTART
+            : VerticalMergeType.CONTINUE,
+        }),
+        cell(isFirst ? dateTime : "", {
+          width: 1800,
+          alignment: AlignmentType.CENTER,
+          verticalMerge: isFirst
+            ? VerticalMergeType.RESTART
+            : VerticalMergeType.CONTINUE,
+        }),
+        cell(isFirst ? safeValue(data.vehicleNumber) : "", {
+          width: 1300,
+          alignment: AlignmentType.CENTER,
+          verticalMerge: isFirst
+            ? VerticalMergeType.RESTART
+            : VerticalMergeType.CONTINUE,
+        }),
+        cell(isFirst ? safeValue(data.driverName).replaceAll("\n", " ") : "", {
+          width: 2100,
+          alignment: AlignmentType.CENTER,
+          verticalMerge: isFirst
+            ? VerticalMergeType.RESTART
+            : VerticalMergeType.CONTINUE,
+        }),
+        cell(safeValue(item.name), {
+          width: 4300,
+          alignment: AlignmentType.LEFT,
+        }),
+        cell(safeValue(item.weight), {
+          width: 900,
+          alignment: AlignmentType.CENTER,
+        }),
+        cell(safeValue(item.quantity), {
+          width: 900,
+          alignment: AlignmentType.CENTER,
+        }),
+      ],
+    });
+  });
+}
+
+export async function downloadDocx(data) {
+  const title =
+    data.applicationType === "acceptance"
+      ? "Заявка на приемку"
+      : "Заявка на выдачу товара";
 
   const doc = new Document({
-    creator: "KT&G Request Generator",
-    title,
-    description: "Автоматически созданная заявка",
-    styles: {
-      default: {
-        document: {
-          run: { font: "Times New Roman", size: 24 },
-          paragraph: { spacing: { after: 80 } },
-        },
-      },
-    },
     sections: [
       {
         properties: {
           page: {
-            margin: { top: 720, right: 720, bottom: 720, left: 720 },
+            margin: {
+              top: 700,
+              right: 700,
+              bottom: 700,
+              left: 700,
+            },
+            size: {
+              orientation: PageOrientation.LANDSCAPE,
+            },
           },
         },
         children: [
-          paragraph(`№ от ${longDate}`, { size: 22 }),
-          paragraph("", { spacing: { after: 120 } }),
-          paragraph(title, { alignment: AlignmentType.CENTER, bold: true, size: 28, spacing: { after: 120 } }),
-          paragraph(`г. ${data.city} ${longDate}`, { alignment: AlignmentType.CENTER, size: 24, spacing: { after: 180 } }),
-          paragraph(`ХРАНИТЕЛЬ-ОПЕРАТОР : ${data.operator}`, { size: 22, spacing: { after: 80 } }),
-          paragraph(`ПОКЛАЖЕДАТЕЛЬ-ЗАКАЗЧИК: ${data.customer}`, { size: 22, spacing: { after: 160 } }),
-          createCargoTable(data),
-          paragraph("", { spacing: { after: 160 } }),
-          paragraph(`Иная информация о грузе:${data.cargoInfo ? ` ${data.cargoInfo}` : ""}`, { size: 22, spacing: { after: 180 } }),
+          paragraph(`№ от ${formatDateLong(data.docDate)}`, {
+            size: 24,
+            spacing: { after: 150 },
+          }),
+
+          paragraph(title, {
+            bold: true,
+            size: 28,
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 150 },
+          }),
+
+          paragraph(
+            `г. ${safeValue(data.city) || "________"} ${formatDateLong(data.docDate)}`,
+            {
+              size: 24,
+              alignment: AlignmentType.CENTER,
+              spacing: { after: 180 },
+            }
+          ),
+
+          paragraph(`ХРАНИТЕЛЬ-ОПЕРАТОР: ${safeValue(data.operator)}`, {
+            size: 24,
+            spacing: { after: 100 },
+          }),
+
+          paragraph(`ПОКЛАЖЕДАТЕЛЬ-ЗАКАЗЧИК: ${safeValue(data.customer)}`, {
+            size: 24,
+            spacing: { after: 180 },
+          }),
+
           new Table({
-            width: { size: 100, type: WidthType.PERCENTAGE },
-            borders: noBorder,
+            width: {
+              size: 100,
+              type: WidthType.PERCENTAGE,
+            },
             rows: [
               new TableRow({
                 children: [
-                  signatureCell(`От Хранителя-Оператора:\n______________________\n${data.operator}\n________________________\nМ.П.`),
-                  signatureCell(`От Поклажедателя-Заказчика:\n${data.signatoryTitle}\n${data.customer}\n___________________\nМ.П.`),
+                  cell("№", {
+                    width: 700,
+                    bold: true,
+                  }),
+                  cell("Дата/время", {
+                    width: 1800,
+                    bold: true,
+                  }),
+                  cell("№ а/м", {
+                    width: 1300,
+                    bold: true,
+                  }),
+                  cell("ФИО водителя", {
+                    width: 2100,
+                    bold: true,
+                  }),
+                  cell("Наименование", {
+                    width: 4300,
+                    bold: true,
+                  }),
+                  cell("Вес", {
+                    width: 900,
+                    bold: true,
+                  }),
+                  cell("Кол-во", {
+                    width: 900,
+                    bold: true,
+                  }),
+                ],
+              }),
+              ...goodsTableRows(data),
+            ],
+          }),
+
+          paragraph(`Иная информация о грузе: ${safeValue(data.cargoInfo)}`, {
+            size: 24,
+            spacing: { before: 180, after: 260 },
+          }),
+
+          new Table({
+            width: {
+              size: 100,
+              type: WidthType.PERCENTAGE,
+            },
+            borders: {
+              top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+              bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+              left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+              right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+              insideHorizontal: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+              insideVertical: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+            },
+            rows: [
+              new TableRow({
+                children: [
+                  new TableCell({
+                    borders: {
+                      top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+                      bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+                      left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+                      right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+                    },
+                    width: { size: 50, type: WidthType.PERCENTAGE },
+                    children: [
+                      paragraph("От Хранителя-Оператора:", {
+                        size: 24,
+                        spacing: { after: 120 },
+                      }),
+                      paragraph("______________________", {
+                        size: 24,
+                      }),
+                      paragraph(safeValue(data.operator), {
+                        size: 24,
+                      }),
+                      paragraph("М.П.", {
+                        size: 24,
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    borders: {
+                      top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+                      bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+                      left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+                      right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+                    },
+                    width: { size: 50, type: WidthType.PERCENTAGE },
+                    children: [
+                      paragraph("От Поклажедателя-Заказчика:", {
+                        size: 24,
+                        spacing: { after: 40 },
+                      }),
+                      paragraph(safeValue(data.signatoryTitle), {
+                        size: 24,
+                      }),
+                      paragraph(safeValue(data.customer), {
+                        size: 24,
+                      }),
+                      paragraph("______________________", {
+                        size: 24,
+                      }),
+                      paragraph("М.П.", {
+                        size: 24,
+                      }),
+                    ],
+                  }),
                 ],
               }),
             ],
@@ -246,20 +345,15 @@ export function buildDocx(data) {
     ],
   });
 
-  return doc;
-}
-
-export async function downloadDocx(data) {
-  const doc = buildDocx(data);
   const blob = await Packer.toBlob(doc);
-  const fileNameType = data.applicationType === "issue" ? "выдача" : "приемка";
-  const fileName = `Заявка_${fileNameType}_${data.city}_${formatDateDots(data.docDate)}.docx`;
+  const url = URL.createObjectURL(blob);
 
   const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = fileName;
+  link.href = url;
+  link.download = `${title}_${safeValue(data.city) || "Без_города"}.docx`;
   document.body.appendChild(link);
   link.click();
-  link.remove();
-  URL.revokeObjectURL(link.href);
+  document.body.removeChild(link);
+
+  URL.revokeObjectURL(url);
 }
