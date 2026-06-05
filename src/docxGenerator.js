@@ -215,10 +215,10 @@ function createGoodsRows(data) {
             : VerticalMergeType.CONTINUE,
         }),
 
-        cell(safeValue(item.name), {
-          width: 5200,
-          alignment: AlignmentType.LEFT,
-        }),
+cell(safeValue(item.name), {
+  width: 5200,
+  alignment: AlignmentType.CENTER,
+}),
 
         cell(safeValue(item.weight), {
           width: 900,
