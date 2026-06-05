@@ -320,8 +320,9 @@ function createGoodsTable(data) {
 
 function createSignatureTable(data) {
   return new Table({
+    alignment: AlignmentType.CENTER,
     width: {
-      size: 100,
+      size: 90,
       type: WidthType.PERCENTAGE,
     },
     borders: {
@@ -339,19 +340,24 @@ function createSignatureTable(data) {
             [
               paragraph("От Хранителя-Оператора:", {
                 size: 22,
+                alignment: AlignmentType.CENTER,
                 spacing: { after: 120 },
               }),
               paragraph("______________________", {
                 size: 22,
+                alignment: AlignmentType.CENTER,
               }),
               paragraph(safeValue(data.operator), {
                 size: 22,
+                alignment: AlignmentType.CENTER,
               }),
               paragraph("________________________", {
                 size: 22,
+                alignment: AlignmentType.CENTER,
               }),
               paragraph("М.П.", {
                 size: 22,
+                alignment: AlignmentType.CENTER,
               }),
             ],
             {
@@ -363,19 +369,24 @@ function createSignatureTable(data) {
             [
               paragraph("От Поклажедателя-Заказчика:", {
                 size: 22,
+                alignment: AlignmentType.CENTER,
                 spacing: { after: 40 },
               }),
               paragraph(safeValue(data.signatoryTitle), {
                 size: 22,
+                alignment: AlignmentType.CENTER,
               }),
               paragraph(safeValue(data.customer), {
                 size: 22,
+                alignment: AlignmentType.CENTER,
               }),
               paragraph("____________________________", {
                 size: 22,
+                alignment: AlignmentType.CENTER,
               }),
               paragraph("М.П.", {
                 size: 22,
+                alignment: AlignmentType.CENTER,
               }),
             ],
             {
@@ -393,7 +404,8 @@ function createBottomFooter(data) {
     children: [
       paragraph(`Иная информация о грузе: ${safeValue(data.cargoInfo)}`, {
         size: 22,
-        spacing: { after: 180 },
+        alignment: AlignmentType.LEFT,
+        spacing: { after: 160 },
       }),
 
       createSignatureTable(data),
@@ -419,22 +431,19 @@ sections: [
         size: {
           orientation: PageOrientation.LANDSCAPE,
         },
-        margin: {
-          top: 600,
-          right: 600,
-          bottom: 2600,
-          left: 600,
-        },
+margin: {
+  top: 600,
+  right: 600,
+  bottom: 3000,
+  left: 600,
+  footer: 1200,
+},
       },
     },
     footers: {
       default: createBottomFooter(data),
     },
     children: [
-          paragraph(`№ от ${formatDateLong(data.docDate)}`, {
-            size: 24,
-            spacing: { after: 120 },
-          }),
 
           paragraph(title, {
             bold: true,
